@@ -1,0 +1,230 @@
+.navbar {
+  width: 100vw;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, #f8f3fc 0%, #f3eafd 100%);
+  box-shadow: 0 2px 8px rgba(80, 0, 120, 0.03);
+  font-family: 'Poppins', sans-serif;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  border-bottom: 1px solid #e1bee7;
+  padding: 0 48px;
+  transition: padding 0.2s;
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 0 18px;
+  }
+  .logoText {
+    font-size: 1.1rem;
+  }
+  .link {
+    font-size: 1rem;
+    padding: 2px 0;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: row;
+    height: 56px;
+    padding: 0 8px;
+  }
+  .rightSection {
+    gap: 12px;
+  }
+  .logoText {
+    font-size: 0.95rem;
+  }
+  .link {
+    font-size: 0.95rem;
+    padding: 1px 0;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 420px) {
+  .navbar {
+    padding: 0 2vw;
+  }
+  .rightSection {
+    gap: 4px;
+  }
+  .logoText {
+    display: none;
+  }
+  .link {
+    display: none;
+  }
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+}
+
+.logoIcon {
+  font-size: 2rem;
+  color: #8e24aa;
+  margin-right: 12px;
+}
+
+.logoText {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.link {
+  font-size: 1.1rem;
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: #8e24aa;
+}
+
+.active {
+  color: #8e24aa;
+}
+
+.active::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 70%;
+  height: 2.5px;
+  background: #8e24aa;
+  border-radius: 2px;
+  margin-top: 2px;
+}
+
+/* Remove underline when dropdown is open */
+.avatarWrapper:has(.dropdownMenu[hidden=false]) ~ .link.active::after,
+.avatarWrapper:has(.dropdownMenu:not([hidden])) ~ .link.active::after {
+  display: none !important;
+}
+
+/* Remove underline on all links when dropdown is open (for broad support) */
+.dropdownMenu:not([hidden]) ~ .link.active::after {
+  display: none !important;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 54px;
+  right: 0;
+  width: 300px;
+  background: none;
+  box-shadow: none;
+  border: none;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0;
+}
+
+.dropdownMenu[hidden] {
+  display: none !important;
+}
+
+.dropdownRoleToggle {
+  display: flex;
+  flex-direction: row;
+  background: #f3eaff;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(124,25,229,0.13);
+  padding: 4px 8px;
+  width: 260px;
+  min-width: 260px;
+  max-width: 300px;
+  gap: 18px;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropdownRoleBtn {
+  flex: 1 1 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #7c19e5;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 8px 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  box-shadow: none;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.dropdownRoleBtn.activeRole {
+  background: #7c19e5;
+  color: #fff;
+  box-shadow: 0 4px 16px 0 rgba(124,25,229,0.18);
+}
+
+.dropdownRoleBtn:not(.activeRole):hover {
+  background: #e6d6fa;
+  color: #7c19e5;
+}
+
+.dropdownroletoggle_ips8_155 {
+  background: #f3eaff;
+}
+
+.dropdownItem {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #6a1b9a;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: none;
+  background: none;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background: #f3eafd;
+  color: #8e24aa;
+}
+
+.avatarWrapper {
+  position: relative;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e1bee7;
+  box-shadow: 0 1px 4px rgba(80, 0, 120, 0.07);
+} 
