@@ -33,7 +33,7 @@ const moodLineData = {
       label: 'Mood Score',
       data: [4.0, 4.2, 4.1, 3.9, 4.5, 3.7, 4.3],
       borderColor: '#a78bfa',
-      backgroundColor: 'rgba(167,139,250,0.2)',
+      backgroundColor: 'rgba(139,92,246,0.15)',
       tension: 0.4,
       fill: true,
     },
@@ -47,10 +47,10 @@ const moodBarData = {
       label: 'Mood Score',
       data: [4.0, 3.8, 4.6, 4.1],
       backgroundColor: [
-        'rgba(191,219,254,0.7)',
-        'rgba(167,243,208,0.7)',
-        'rgba(254,240,138,0.7)',
-        'rgba(221,214,254,0.7)',
+        'rgba(191,219,254,0.9)',
+        'rgba(167,243,208,0.9)',
+        'rgba(254,240,138,0.9)',
+        'rgba(221,214,254,0.9)',
       ],
       borderRadius: 8,
     },
@@ -75,11 +75,20 @@ function AdminDashboard() {
         <h1 className="text-3xl font-bold mb-1">Attendance & Mood Dashboard</h1>
         <p className="text-gray-500 mb-6">An overview of student well-being and engagement.</p>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <span className="font-semibold text-lg">Student Reports</span>
+          <span className="text-2xl font-bold">Student Reports</span>
           <SearchBar search={search} setSearch={setSearch} />
         </div>
-        <SummaryCards summary={summary} />
-        <MoodTrends moodLineData={moodLineData} moodBarData={moodBarData} />
+        {/* Summary Section */}
+        <div className="mb-2">
+          <span className="text-2xl font-bold mb-4 block">Summary</span>
+          <SummaryCards summary={summary} />
+        </div>
+        {/* Mood Trends Section */}
+        <div className="mb-2">
+          <span className="text-2xl font-bold mb-4 block">Mood Trends</span>
+          <MoodTrends moodLineData={moodLineData} moodBarData={moodBarData} />
+        </div>
+        {/* Students Flagged Section (heading is in the component, so update there too) */}
         <FlaggedStudentsTable flaggedStudents={flaggedStudents} />
       </main>
     </div>
