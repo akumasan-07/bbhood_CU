@@ -1,7 +1,7 @@
-import StudentDetails from './pages/StudentDetails';
+import StudentCheckin from './pages/StudentCheckin';
 
 function App() {
-  return <StudentDetails />;
+  return <StudentCheckin />;
 }
 
 export default App;

@@ -31,7 +31,7 @@ const moodBarDataPastel = (moodBarData) => ({
 // Simple Chart.js plugin for a single line shadow
 const lineShadow = {
   id: 'lineShadow',
-  beforeDatasetsDraw(chart, args, options) {
+  beforeDatasetsDraw(chart) {
     const ctx = chart.ctx;
     chart.data.datasets.forEach((dataset, i) => {
       if (chart.isDatasetVisible(i) && dataset.type !== 'bar') {
