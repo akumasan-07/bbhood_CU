@@ -45,7 +45,8 @@ const StudentSignup = ({ onSwitch, onModeChange, onSuccess }) => {
     phone: '',
     password: '',
     email: '',
-    teacherID: ''
+    teacherID: '',
+    classSection: ''
   });
   const [role, setRole] = useState('student');
   const [showPassword, setShowPassword] = useState(false);
@@ -95,7 +96,7 @@ const StudentSignup = ({ onSwitch, onModeChange, onSuccess }) => {
 
   return (
     <>
-      <Navbar active="Attendance" showLinks={false} currentRole="student" />
+      <Navbar active="Attendance" showLinks={false} currentRole="student" className="navbar-absolute" />
       <div className={styles['signup-bg']}>
         <div className={styles['signup-card']}>
           <div className={styles['signup-title']}>Student Signup</div>
@@ -103,6 +104,7 @@ const StudentSignup = ({ onSwitch, onModeChange, onSuccess }) => {
           <div className={styles['toggle-row']}>
             <button type="button" className={role === 'teacher' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('teacher'); onSwitch && onSwitch('teacher'); }}>Teacher</button>
             <button type="button" className={role === 'student' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => setRole('student')}>Student</button>
+            <button type="button" className={role === 'counselor' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('counselor'); onSwitch && onSwitch('counselor'); }}>Counselor</button>
           </div>
           <form onSubmit={handleSubmit} autoComplete="off">
             <label className={styles['signup-label']}>Username</label>
@@ -128,6 +130,8 @@ const StudentSignup = ({ onSwitch, onModeChange, onSuccess }) => {
             </div>
             <label className={styles['signup-label']}>Teacher ID</label>
             <div className={styles['input-row']}><TeacherIcon /><input name="teacherID" placeholder="Enter your teacher's ID" value={form.teacherID} onChange={handleChange} /></div>
+            <label className={styles['signup-label']}>Class Section</label>
+            <div className={styles['input-row']}><input name="classSection" placeholder="e.g. 10A" value={form.classSection} onChange={handleChange} /></div>
             <button className={styles['signup-btn']} type="submit">Sign Up</button>
           </form>
           <div className={styles['signup-footer']}>

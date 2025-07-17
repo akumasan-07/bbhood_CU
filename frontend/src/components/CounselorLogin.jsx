@@ -4,8 +4,8 @@ import axios from 'axios';
 import Navbar from './Navbar';
 import { toast } from 'react-toastify';
 
-const TeacherIcon = () => (
-  <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#bbb" strokeWidth="2" d="M12 2l7 4-7 4-7-4 7-4Zm0 8v12m0 0l7-4m-7 4l-7-4"/></svg>
+const UserIcon = () => (
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#bbb" strokeWidth="2" d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.418 0-8 2.239-8 5v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1c0-2.761-3.582-5-8-5Z"/></svg>
 );
 const LockIcon = () => (
   <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="8" rx="2" stroke="#bbb" strokeWidth="2"/><path stroke="#bbb" strokeWidth="2" d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>
@@ -26,12 +26,12 @@ const EyeIcon = ({ open, onClick }) => (
   </span>
 );
 
-const TeacherLogin = ({ onSwitch, onModeChange, onSuccess }) => {
+const CounselorLogin = ({ onSwitch, onModeChange, onSuccess }) => {
   const [form, setForm] = useState({
-    teachID: '',
+    counselorID: '',
     password: ''
   });
-  const [role, setRole] = useState('teacher');
+  const [role, setRole] = useState('counselor');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = e => {
@@ -41,16 +41,16 @@ const TeacherLogin = ({ onSwitch, onModeChange, onSuccess }) => {
   const handleSubmit = async e => {
     e.preventDefault();
     // Validation
-    if (!form.teachID.trim() || !form.password.trim()) {
+    if (!form.counselorID.trim() || !form.password.trim()) {
       toast.error('Please fill in all fields.');
       return;
     }
     // Real API call
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/teacher-login', form);
-      if (onSuccess && res.data.teacher) {
+      const res = await axios.post('http://localhost:3000/api/auth/counselor-login', form);
+      if (res.data && res.data.counselor) {
         toast.success('Successfully logged in!');
-        onSuccess(res.data.teacher);
+        if (onSuccess) onSuccess(res.data.counselor);
       } else {
         toast.error(res.data.message);
       }
@@ -61,19 +61,19 @@ const TeacherLogin = ({ onSwitch, onModeChange, onSuccess }) => {
 
   return (
     <>
-      <Navbar active="Attendance" showLinks={false} currentRole="teacher" className="navbar-absolute" />
+      <Navbar active="Attendance" showLinks={false} currentRole="counselor" className="navbar-absolute" />
       <div className={styles['login-bg']}>
         <div className={styles['login-card']}>
-          <div className={styles['login-title']}>Teacher Login</div>
+          <div className={styles['login-title']}>Counselor Login</div>
           <div className={styles['login-subtitle']}>Welcome back! Please login to your account.</div>
           <div className={styles['toggle-row']}>
-            <button type="button" className={role === 'teacher' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => setRole('teacher')}>Teacher</button>
+            <button type="button" className={role === 'teacher' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('teacher'); onSwitch && onSwitch('teacher'); }}>Teacher</button>
             <button type="button" className={role === 'student' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('student'); onSwitch && onSwitch('student'); }}>Student</button>
             <button type="button" className={role === 'counselor' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('counselor'); onSwitch && onSwitch('counselor'); }}>Counselor</button>
           </div>
           <form onSubmit={handleSubmit} autoComplete="off">
-            <label className={styles['login-label']}>Teacher ID</label>
-            <div className={styles['input-row']}><TeacherIcon /><input name="teachID" placeholder="Enter your teacher ID" value={form.teachID} onChange={handleChange} /></div>
+            <label className={styles['login-label']}>Counselor ID</label>
+            <div className={styles['input-row']}><UserIcon /><input name="counselorID" placeholder="Enter your counselor ID" value={form.counselorID} onChange={handleChange} /></div>
             <label className={styles['login-label']}>Password</label>
             <div className={styles['input-row']}>
               <LockIcon />
@@ -99,4 +99,4 @@ const TeacherLogin = ({ onSwitch, onModeChange, onSuccess }) => {
   );
 };
 
-export default TeacherLogin; 
+export default CounselorLogin; 

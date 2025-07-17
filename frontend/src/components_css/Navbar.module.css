@@ -16,6 +16,19 @@
   transition: padding 0.2s;
 }
 
+.navbar-absolute {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 100;
+}
+
+/* Remove the margin-top for body and .tdb-root */
+body, .tdb-root {
+  margin-top: 0 !important;
+}
+
 @media (max-width: 900px) {
   .navbar {
     padding: 0 18px;
@@ -154,17 +167,17 @@
 
 .dropdownRoleToggle {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   background: #f3eaff;
-  border-radius: 999px;
+  border-radius: 18px;
   box-shadow: 0 4px 16px rgba(124,25,229,0.13);
-  padding: 4px 8px;
-  width: 260px;
-  min-width: 260px;
-  max-width: 300px;
-  gap: 18px;
+  padding: 24px 20px;
+  width: 180px;
+  min-width: 180px;
+  max-width: 220px;
+  gap: 12px;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
 }
 
 .dropdownRoleBtn {

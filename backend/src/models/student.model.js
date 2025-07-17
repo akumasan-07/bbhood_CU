@@ -28,6 +28,10 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Admin",
     },
+    classSection: {
+        type: String,
+        required: true
+    },
     isActive: { type: Boolean, default: true },
     attendance: [{
         date: { type: Date },

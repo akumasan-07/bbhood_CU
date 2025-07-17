@@ -31,20 +31,16 @@ const EyeIcon = ({ open, onClick }) => (
     )}
   </span>
 );
-const TeacherIcon = () => (
-  <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#bbb" strokeWidth="2" d="M12 2l7 4-7 4-7-4 7-4Zm0 8v12m0 0l7-4m-7 4l-7-4"/></svg>
-);
 
-const TeacherSignup = ({ onSwitch, onModeChange, onSuccess }) => {
+const CounselorSignup = ({ onSwitch, onModeChange, onSuccess }) => {
   const [form, setForm] = useState({
-  username: '',
-  phone: '',
+    username: '',
+    counselorID: '',
     email: '',
-  password: '',
-    teachID: '',
-    classSection: ''
+    phone: '',
+    password: ''
   });
-  const [role, setRole] = useState('teacher');
+  const [role, setRole] = useState('counselor');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = e => {
@@ -55,11 +51,10 @@ const TeacherSignup = ({ onSwitch, onModeChange, onSuccess }) => {
     e.preventDefault();
     // Validation
     if (!form.username.trim() ||
-        !form.phone.trim() ||
+        !form.counselorID.trim() ||
         !form.email.trim() ||
-        !form.password.trim() ||
-        !form.teachID.trim() ||
-        !form.classSection.trim()) {
+        !form.phone.trim() ||
+        !form.password.trim()) {
       toast.error('Please fill in all fields.');
       return;
     }
@@ -78,10 +73,10 @@ const TeacherSignup = ({ onSwitch, onModeChange, onSuccess }) => {
     }
     // Real API call
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/teacher-signup', form);
-      if (onSuccess && res.data.teacher) {
+      const res = await axios.post('http://localhost:3000/api/auth/counselor-signup', form);
+      if (res.data && res.data.counselor) {
         toast.success('Signup successful!');
-        onSuccess(res.data.teacher);
+        if (onSuccess) onSuccess(res.data.counselor);
       } else {
         toast.error(res.data.message);
       }
@@ -92,40 +87,38 @@ const TeacherSignup = ({ onSwitch, onModeChange, onSuccess }) => {
 
   return (
     <>
-      <Navbar active="Attendance" showLinks={false} currentRole="teacher" className="navbar-absolute" />
+      <Navbar active="Attendance" showLinks={false} currentRole="counselor" className="navbar-absolute" />
       <div className={styles['signup-bg']}>
         <div className={styles['signup-card']}>
-          <div className={styles['signup-title']}>Teacher Signup</div>
+          <div className={styles['signup-title']}>Counselor Signup</div>
           <div className={styles['signup-subtitle']}>Create your account to get started.</div>
           <div className={styles['toggle-row']}>
-            <button type="button" className={role === 'teacher' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => setRole('teacher')}>Teacher</button>
+            <button type="button" className={role === 'teacher' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('teacher'); onSwitch && onSwitch('teacher'); }}>Teacher</button>
             <button type="button" className={role === 'student' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('student'); onSwitch && onSwitch('student'); }}>Student</button>
             <button type="button" className={role === 'counselor' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('counselor'); onSwitch && onSwitch('counselor'); }}>Counselor</button>
-        </div>
+          </div>
           <form onSubmit={handleSubmit} autoComplete="off">
             <label className={styles['signup-label']}>Username</label>
             <div className={styles['input-row']}><UserIcon /><input name="username" placeholder="your_username" value={form.username} onChange={handleChange} /></div>
-            <label className={styles['signup-label']}>Phone</label>
-            <div className={styles['input-row']}><PhoneIcon /><input name="phone" placeholder="+91 12345 67890" value={form.phone} onChange={handleChange} /></div>
+            <label className={styles['signup-label']}>Counselor ID</label>
+            <div className={styles['input-row']}><UserIcon /><input name="counselorID" placeholder="Enter your counselor ID" value={form.counselorID} onChange={handleChange} /></div>
             <label className={styles['signup-label']}>Email</label>
             <div className={styles['input-row']}><EmailIcon /><input name="email" placeholder="you@example.com" value={form.email} onChange={handleChange} /></div>
+            <label className={styles['signup-label']}>Phone</label>
+            <div className={styles['input-row']}><PhoneIcon /><input name="phone" placeholder="+91 12345 67890" value={form.phone} onChange={handleChange} /></div>
             <label className={styles['signup-label']}>Password</label>
             <div className={styles['input-row']}>
               <LockIcon />
-            <input
-              name="password"
-              type={showPassword ? 'text' : 'password'}
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
-              value={form.password}
-              onChange={handleChange}
+                value={form.password}
+                onChange={handleChange}
                 style={{ flex: 1 }}
               />
               <EyeIcon open={showPassword} onClick={() => setShowPassword((v) => !v)} />
             </div>
-            <label className={styles['signup-label']}>Teacher ID</label>
-            <div className={styles['input-row']}><TeacherIcon /><input name="teachID" placeholder="Enter your teacher's ID" value={form.teachID} onChange={handleChange} /></div>
-            <label className={styles['signup-label']}>Class Section</label>
-            <div className={styles['input-row']}><input name="classSection" placeholder="e.g. 10A" value={form.classSection} onChange={handleChange} /></div>
             <button className={styles['signup-btn']} type="submit">Sign Up</button>
           </form>
           <div className={styles['signup-footer']}>
@@ -133,9 +126,9 @@ const TeacherSignup = ({ onSwitch, onModeChange, onSuccess }) => {
             <span style={{ color: '#7c19e5', fontWeight: 600, marginLeft: 4, cursor: 'pointer' }} onClick={() => onModeChange && onModeChange('login')}>Login</span>
           </div>
         </div>
-        </div>
+      </div>
     </>
   );
 };
 
-export default TeacherSignup;
+export default CounselorSignup; 

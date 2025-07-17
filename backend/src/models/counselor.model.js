@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const adminSchema = new mongoose.Schema({
+const counselorSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -17,26 +17,18 @@ const adminSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    teachID: {
+    counselorID: {
         type: String,
         required: true,
         unique: true
     },
-    classSection: {
-        type: String,
-        required: true
-    },
     role: {
         type: String,
-        enum: ["admin", "student"],
-        default: "admin",
+        enum: ["counselor"],
+        default: "counselor",
     },
-    students: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Student",
-    }],
     isActive: { type: Boolean, default: true },
 },{timestamps: true});
 
-const Admin = mongoose.model("Admin", adminSchema);
-export default Admin;
+const Counselor = mongoose.model("Counselor", counselorSchema);
+export default Counselor; 

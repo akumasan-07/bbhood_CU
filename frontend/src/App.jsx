@@ -4,28 +4,39 @@ import TeacherSignup from './components/TeacherSignup';
 import TeacherLogin from './components/TeacherLogin';
 import StudentSignup from './components/StudentSignup';
 import StudentLogin from './components/StudentLogin';
-import TeacherDashboard from './components/TeacherDashboard';
+// import TeacherDashboard from './components/TeacherDashboard';
 import StudentDashboard from './components/StudentDashboard';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import StudentCheckin from './pages/StudentCheckin';
+import StudentDetails from './pages/StudentDetails';
+import AdminDashboard from './pages/AdminDashboard';
+import TeacherDashboard from './pages/TeacherDashboard';
+import CounselorSignup from './components/CounselorSignup';
+import CounselorLogin from './components/CounselorLogin';
 
 function App() {
   const [teacher, setTeacher] = useState(null);
   const [student, setStudent] = useState(null);
 
   return (
-    <Router>
-      <ToastContainer position="top-right" autoClose={3000} />
-      <Routes>
-        <Route path="/" element={<Navigate to="/teacher/signup" replace />} />
-        <Route path="/teacher/signup" element={<RouteRenderer role="teacher" mode="signup" FormComponent={TeacherSignup} setTeacher={setTeacher} />} />
-        <Route path="/teacher/login" element={<RouteRenderer role="teacher" mode="login" FormComponent={TeacherLogin} setTeacher={setTeacher} />} />
-        <Route path="/student/signup" element={<RouteRenderer role="student" mode="signup" FormComponent={StudentSignup} setStudent={setStudent} />} />
-        <Route path="/student/login" element={<RouteRenderer role="student" mode="login" FormComponent={StudentLogin} setStudent={setStudent} />} />
-        <Route path="/teacher/dashboard" element={<TeacherDashboard teacher={teacher} />} />
-        <Route path="/student/dashboard" element={<StudentDashboard student={student} />} />
-      </Routes>
-    </Router>
+    <>
+      {/* <TeacherDashboard /> Removed to prevent always showing dashboard */}
+      <Router>
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Routes>
+          <Route path="/" element={<Navigate to="/teacher/signup" replace />} />
+          <Route path="/teacher/signup" element={<RouteRenderer role="teacher" mode="signup" FormComponent={TeacherSignup} setTeacher={setTeacher} />} />
+          <Route path="/teacher/login" element={<RouteRenderer role="teacher" mode="login" FormComponent={TeacherLogin} setTeacher={setTeacher} />} />
+          <Route path="/student/signup" element={<RouteRenderer role="student" mode="signup" FormComponent={StudentSignup} setStudent={setStudent} />} />
+          <Route path="/student/login" element={<RouteRenderer role="student" mode="login" FormComponent={StudentLogin} setStudent={setStudent} />} />
+          <Route path="/counselor/signup" element={<RouteRenderer role="counselor" mode="signup" FormComponent={CounselorSignup} />} />
+          <Route path="/counselor/login" element={<RouteRenderer role="counselor" mode="login" FormComponent={CounselorLogin} />} />
+          <Route path="/teacher/dashboard" element={<TeacherDashboard teacher={teacher} />} />
+          <Route path="/student/dashboard" element={<StudentDashboard student={student} />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
@@ -37,15 +48,19 @@ function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent }) {
         onSwitch={(newRole) => {
           if (newRole === 'teacher') {
             navigate('/teacher/signup');
-          } else {
+          } else if (newRole === 'student') {
             navigate('/student/signup');
+          } else if (newRole === 'counselor') {
+            navigate('/counselor/signup');
           }
         }}
         onModeChange={(newMode) => {
           if (role === 'teacher') {
             navigate(`/teacher/${newMode}`);
-          } else {
+          } else if (role === 'student') {
             navigate(`/student/${newMode}`);
+          } else if (role === 'counselor') {
+            navigate(`/counselor/${newMode}`);
           }
         }}
         onSuccess={
@@ -67,3 +82,4 @@ function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent }) {
 }
 
 export default App;
+

@@ -61,7 +61,7 @@ const StudentLogin = ({ onSwitch, onModeChange, onSuccess }) => {
 
   return (
     <>
-      <Navbar active="Attendance" showLinks={false} currentRole="student" />
+      <Navbar active="Attendance" showLinks={false} currentRole="student" className="navbar-absolute" />
       <div className={styles['login-bg']}>
         <div className={styles['login-card']}>
           <div className={styles['login-title']}>Student Login</div>
@@ -69,6 +69,7 @@ const StudentLogin = ({ onSwitch, onModeChange, onSuccess }) => {
           <div className={styles['toggle-row']}>
             <button type="button" className={role === 'teacher' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('teacher'); onSwitch && onSwitch('teacher'); }}>Teacher</button>
             <button type="button" className={role === 'student' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => setRole('student')}>Student</button>
+            <button type="button" className={role === 'counselor' ? `${styles['toggle-btn']} ${styles['active']}` : styles['toggle-btn']} onClick={() => { setRole('counselor'); onSwitch && onSwitch('counselor'); }}>Counselor</button>
           </div>
           <form onSubmit={handleSubmit} autoComplete="off">
             <label className={styles['login-label']}>Student ID</label>
