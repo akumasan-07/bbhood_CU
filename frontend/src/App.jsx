@@ -4,7 +4,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 
 function App() {
-  return <TeacherDashboard />;
+  return <StudentCheckin />;
 }
 
 export default App;

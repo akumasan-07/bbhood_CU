@@ -5,6 +5,7 @@ const CheckinCard = () => {
   const [photo, setPhoto] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [prediction, setPrediction] = useState('');
   const videoRef = useRef();
   const canvasRef = useRef();
   let stream = null;
@@ -13,6 +14,7 @@ const CheckinCard = () => {
     setShowCamera(true);
     setPhoto(null);
     setSubmitted(false);
+    setPrediction('');
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       if (videoRef.current) {
@@ -42,10 +44,27 @@ const CheckinCard = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
-    // Backend integration will be added here
+    setPrediction('');
+    if (!photo) return;
+    // Send photo to backend for prediction
+    try {
+      // Convert base64 to blob
+      const res = await fetch(photo);
+      const blob = await res.blob();
+      const formData = new FormData();
+      formData.append('file', blob, 'capture.png');
+      const response = await fetch('http://localhost:5000/predict', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      setPrediction(data.emotion);
+    } catch (error) {
+      setPrediction('Error connecting to backend');
+    }
   };
 
   return (
@@ -100,7 +119,10 @@ const CheckinCard = () => {
           </button>
         </>
       )}
-      {submitted && (
+      {prediction && (
+        <div className="text-blue-600 font-semibold mt-2">Predicted Emotion: <strong>{prediction}</strong></div>
+      )}
+      {submitted && !prediction && (
         <div className="text-green-600 font-semibold mt-2">Photo submitted! (Backend integration coming soon)</div>
       )}
     </form>
