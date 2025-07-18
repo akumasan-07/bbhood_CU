@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import Header from '../components/Header';
+import Navbar from '../components/Navbar';
 import SummaryCards from '../components/SummaryCards';
 import SearchBar from '../components/SearchBar';
 import MoodTrends from '../components/MoodTrends';
 import FlaggedStudentsTable from '../components/FlaggedStudentsTable';
+import '../components_css/TeacherDashboard.css';
 
 const summary = [
   {
@@ -69,23 +70,23 @@ function AdminDashboard() {
   const [search, setSearch] = useState('');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="max-w-6xl mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-1">Attendance & Mood Dashboard</h1>
-        <p className="text-gray-500 mb-6">An overview of student well-being and engagement.</p>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <span className="text-2xl font-bold">Student Reports</span>
+    <div className="admin-root">
+      <Navbar active="Dashboard" currentRole="counselor" showLinks={true} />
+      <main className="admin-main">
+        <h1 className="admin-title">Attendance & Mood Dashboard</h1>
+        <p className="admin-subtitle">An overview of student well-being and engagement.</p>
+        <div className="admin-reports-row">
+          <span className="admin-reports-title">Student Reports</span>
           <SearchBar search={search} setSearch={setSearch} />
         </div>
         {/* Summary Section */}
-        <div className="mb-2">
-          <span className="text-2xl font-bold mb-4 block">Summary</span>
+        <div className="admin-section">
+          <span className="admin-section-title">Summary</span>
           <SummaryCards summary={summary} />
         </div>
         {/* Mood Trends Section */}
-        <div className="mb-2">
-          <span className="text-2xl font-bold mb-4 block">Mood Trends</span>
+        <div className="admin-section">
+          <span className="admin-section-title">Mood Trends</span>
           <MoodTrends moodLineData={moodLineData} moodBarData={moodBarData} />
         </div>
         {/* Students Flagged Section (heading is in the component, so update there too) */}

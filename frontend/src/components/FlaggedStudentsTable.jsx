@@ -1,37 +1,49 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../components_css/TeacherDashboard.css';
 
-const FlaggedStudentsTable = ({ flaggedStudents }) => (
-  <div className="mb-2">
-    <span className="text-2xl font-bold mb-4 block">Students Flagged for Emotional Distress</span>
-    <div className="bg-white rounded-xl shadow p-3">
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left">
-          <thead>
-            <tr className="text-gray-700 font-bold text-lg">
-              <th className="min-w-[9rem] py-3 px-4 ">Student Name</th>
-              <th className="py-3 px-4 ">Class</th>
-              <th className="py-3 px-4 ">Mood Score</th>
-              <th className="py-3 px-4 ">Last Updated</th>
-              <th className="py-3 px-4 text-right"></th>
+const FlaggedStudentsTable = ({ flaggedStudents }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div style={{ marginTop: 24 }}>
+      <h2 style={{ fontWeight: 800, fontSize: '2rem', marginBottom: 12 }}>Students Flagged for Emotional Distress</h2>
+      <table className="flagged-table">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Class</th>
+            <th>Mood Score</th>
+            <th>Last Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {flaggedStudents.map((row, idx) => (
+            <tr
+              key={idx}
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate(`/counselor/student/${row.studentId || row.id}`)}
+            >
+              <td style={{ color: '#7c19e5', fontWeight: 700 }}>{row.name}</td>
+              <td>{row.class}</td>
+              <td style={{ color: '#e53935', fontWeight: 700 }}>{row.score}</td>
+              <td>{row.updated}</td>
+              <td>
+                <a
+                  href="#"
+                  style={{ color: '#3490ec', fontWeight: 600, textDecoration: 'underline' }}
+                  onClick={e => { e.stopPropagation(); navigate(`/counselor/student/${row.studentId || row.id}`); }}
+                >
+                  View Report
+                </a>
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {flaggedStudents.map((s, i) => (
-              <tr key={i}>
-                <td className="min-w-[9rem] py-3 px-4 font-semibold text-purple-800 truncate">{s.name}</td>
-                <td className="py-3 px-4">{s.class}</td>
-                <td className="py-3 px-4 text-red-500 font-bold">{s.score}</td>
-                <td className="py-3 px-4">{s.updated}</td>
-                <td className="py-3 px-4 text-right">
-                  <a href="#" className="text-blue-500 hover:underline font-medium">View Report</a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
-  </div>
-);
+  );
+};
 
 export default FlaggedStudentsTable; 

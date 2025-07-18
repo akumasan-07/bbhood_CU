@@ -525,3 +525,217 @@ html, body {
     border-radius: 10px;
   }
 } 
+
+.admin-root {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7f5fa 0%, #e0c3fc 100%);
+}
+.admin-main {
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 40px 80px 32px 80px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(124,25,229,0.10);
+  margin-top: 40px;
+}
+.admin-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.3em;
+  color: #7c19e5;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 8px rgba(124,25,229,0.07);
+}
+.admin-subtitle {
+  color: #6b7280;
+  margin-bottom: 2em;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+.admin-reports-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 2.2em;
+  background: #f3eaff;
+  border-radius: 12px;
+  padding: 16px 24px;
+  box-shadow: 0 2px 8px rgba(124,25,229,0.07);
+}
+.admin-reports-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #7c19e5;
+  letter-spacing: -0.5px;
+}
+.admin-section {
+  margin-bottom: 2.2em;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(124,25,229,0.06);
+  padding: 28px 24px 18px 24px;
+  transition: box-shadow 0.2s;
+}
+.admin-section:hover {
+  box-shadow: 0 8px 32px rgba(124,25,229,0.13);
+}
+.admin-section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #7c19e5;
+  margin-bottom: 1.1em;
+  display: block;
+  letter-spacing: -0.5px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .admin-main {
+    padding: 12px 2vw 24px 2vw;
+    margin-top: 16px;
+  }
+  .admin-section {
+    padding: 16px 8px 10px 8px;
+  }
+  .admin-title {
+    font-size: 2rem;
+  }
+  .admin-reports-row {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 8px;
+  }
+} 
+
+/* FlaggedStudentsTable */
+.flagged-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(124,25,229,0.07);
+  margin-bottom: 1.5em;
+  overflow: hidden;
+}
+.flagged-table th, .flagged-table td {
+  padding: 12px 18px;
+  text-align: left;
+}
+.flagged-table th {
+  background: #f3eaff;
+  color: #7c19e5;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.flagged-table tr {
+  transition: background 0.2s;
+}
+.flagged-table tr:hover {
+  background: #f7f5fa;
+}
+.flagged-table td {
+  font-size: 0.98rem;
+  color: #2d1b4e;
+}
+
+/* MoodTrends */
+.mood-trends {
+  background: #f9f7fd;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(124,25,229,0.07);
+  padding: 18px 18px 10px 18px;
+  margin-bottom: 1.5em;
+}
+.mood-trends-title {
+  color: #7c19e5;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.7em;
+}
+
+/* SearchBar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #e5d8f6;
+  border-radius: 8px;
+  padding: 6px 14px;
+  box-shadow: 0 1px 4px rgba(124,25,229,0.05);
+  margin-left: 8px;
+  max-width: 260px;
+}
+.search-bar-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  color: #615656;
+  padding: 6px 8px;
+  width: 180px;
+  border-radius: 6px;
+  transition: border 0.2s;
+}
+.search-bar-input:focus {
+  border: none;
+}
+.search-bar-input::placeholder {
+  color: #bbb;
+}
+.search-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+/* SummaryCards */
+.summary-cards {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5em;
+}
+.summary-card {
+  flex: 1;
+  min-width: 200px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(124,25,229,0.07);
+  padding: 22px 18px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: box-shadow 0.2s;
+}
+.summary-card:hover {
+  box-shadow: 0 8px 32px rgba(124,25,229,0.13);
+}
+.summary-card-title {
+  color: #724e97;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+.summary-card-value {
+  color: #140e1b;
+  font-weight: 700;
+  font-size: 2.2rem;
+  margin-bottom: 0.2em;
+}
+.summary-card-sub {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #e53935;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.summary-card-sub.positive {
+  color: #059669;
+}
+.summary-card-sub.neutral {
+  color: #888;
+} 

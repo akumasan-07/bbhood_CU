@@ -1,4 +1,5 @@
 import React from 'react';
+import '../components_css/TeacherDashboard.css';
 
 const SummaryCards = ({ summary }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

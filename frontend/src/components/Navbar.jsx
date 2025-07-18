@@ -73,23 +73,27 @@ const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, se
       </div>
       <div className={styles.rightSection}>
         {showLinks && <>
+          {/* Only show Dashboard for counselor, all links for others */}
           <a
             className={styles.link + ' ' + (active === 'Dashboard' ? styles.active : '')}
             href="#"
             onClick={e => {
               e.preventDefault();
               if (currentRole === 'teacher') navigate('/teacher/dashboard');
+              else if (currentRole === 'counselor') navigate('/counselor/dashboard');
             }}
           >Dashboard</a>
-          <a
-            className={styles.link + ' ' + (active === 'Attendance' ? styles.active : '')}
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              if (currentRole === 'teacher') navigate('/teacher/attendance');
-            }}
-          >Attendance</a>
-          <a className={styles.link + ' ' + (active === 'Reports' ? styles.active : '')} href="#" onClick={e => { e.preventDefault(); onNavClick && onNavClick('Reports'); }}>Reports</a>
+          {currentRole !== 'counselor' && <>
+            <a
+              className={styles.link + ' ' + (active === 'Attendance' ? styles.active : '')}
+              href="#"
+              onClick={e => {
+                e.preventDefault();
+                if (currentRole === 'teacher') navigate('/teacher/attendance');
+              }}
+            >Attendance</a>
+            <a className={styles.link + ' ' + (active === 'Reports' ? styles.active : '')} href="#" onClick={e => { e.preventDefault(); onNavClick && onNavClick('Reports'); }}>Reports</a>
+          </>}
         </>}
         <div className={styles.avatarWrapper} ref={avatarRef}>
           {/* User icon instead of image */}

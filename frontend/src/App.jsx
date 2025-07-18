@@ -25,6 +25,7 @@ function App() {
   const [teacherStudents, setTeacherStudents] = useState([]); // NEW
   const [attendanceData, setAttendanceData] = useState([]); // NEW
   const [student, setStudent] = useState(null);
+  const [counselor, setCounselor] = useState(null); // NEW
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,13 +36,16 @@ function App() {
           const data = await res.json();
           if (data.role === 'teacher') setTeacher(data.user);
           else if (data.role === 'student') setStudent(data.user);
+          else if (data.role === 'counselor') setCounselor(data.user);
         } else {
           setTeacher(null);
           setStudent(null);
+          setCounselor(null);
         }
       } catch {
         setTeacher(null);
         setStudent(null);
+        setCounselor(null);
       } finally {
         setLoading(false);
       }
@@ -57,6 +61,8 @@ function App() {
     return <StudentDetails studentId={studentId} setTeacher={setTeacher} />;
   }
 
+  // Remove StudentDetailsForCounselor helper
+
   return (
     <>
       {/* <TeacherDashboard /> Removed to prevent always showing dashboard */}
@@ -68,20 +74,22 @@ function App() {
           <Route path="/teacher/login" element={<RouteRenderer role="teacher" mode="login" FormComponent={TeacherLogin} setTeacher={setTeacher} setTeacherStudents={setTeacherStudents} setAttendanceData={setAttendanceData} />} />
           <Route path="/student/signup" element={<RouteRenderer role="student" mode="signup" FormComponent={StudentSignup} setStudent={setStudent} />} />
           <Route path="/student/login" element={<RouteRenderer role="student" mode="login" FormComponent={StudentLogin} setStudent={setStudent} />} />
-          <Route path="/counselor/signup" element={<RouteRenderer role="counselor" mode="signup" FormComponent={CounselorSignup} />} />
-          <Route path="/counselor/login" element={<RouteRenderer role="counselor" mode="login" FormComponent={CounselorLogin} />} />
+          <Route path="/counselor/signup" element={<RouteRenderer role="counselor" mode="signup" FormComponent={CounselorSignup} setCounselor={setCounselor} />} />
+          <Route path="/counselor/login" element={<RouteRenderer role="counselor" mode="login" FormComponent={CounselorLogin} setCounselor={setCounselor} />} />
+          <Route path="/counselor/dashboard" element={<ProtectedRoute user={counselor} redirectTo="/counselor/login" element={<AdminDashboard />} />} />
           <Route path="/teacher/dashboard" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<TeacherDashboard teacher={teacher} setTeacher={setTeacher} students={teacherStudents} attendanceData={attendanceData} setAttendanceData={setAttendanceData} />} />} />
           <Route path="/teacher/attendance" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<StudentCheckin />} />} />
           <Route path="/student/dashboard" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDashboard student={student} setStudent={setStudent} />} />} />
           <Route path="/student/details" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDetails />} />} />
           <Route path="/teacher/student/:studentId" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<StudentDetailsForTeacher />} />} />
+          <Route path="/counselor/student/:studentId" element={<ProtectedRoute user={counselor} redirectTo="/counselor/login" element={<StudentDetails currentRole="counselor" />} />} />
         </Routes>
       </Router>
     </>
   );
 }
 
-function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setTeacherStudents, setAttendanceData }) {
+function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setTeacherStudents, setAttendanceData, setCounselor }) {
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -134,6 +142,11 @@ function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setT
             ? (studentObj) => {
                 setStudent(studentObj);
                 navigate('/student/dashboard');
+              }
+            : setCounselor && role === 'counselor'
+            ? (counselorObj) => {
+                setCounselor(counselorObj);
+                navigate('/counselor/dashboard');
               }
             : undefined
         }
