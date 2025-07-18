@@ -50,7 +50,7 @@ const TeacherLogin = ({ onSwitch, onModeChange, onSuccess }) => {
       const res = await axios.post('http://localhost:3000/api/auth/teacher-login', form);
       if (onSuccess && res.data.teacher) {
         toast.success('Successfully logged in!');
-        onSuccess(res.data.teacher);
+        onSuccess(res.data.teacher, res.data.students);
       } else {
         toast.error(res.data.message);
       }

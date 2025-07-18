@@ -37,6 +37,14 @@ const studentSchema = new mongoose.Schema({
         date: { type: Date },
         status: { type: String, enum: ["present", "absent", "late"] }
     }],
+    totalAttendance: {
+      type: Number,
+      default: 0
+    },
+    totalClass: {
+      type: Number,
+      default: 0
+    },
 },{timestamps:true});
 
 const Student = mongoose.model("Student", studentSchema);

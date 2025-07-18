@@ -1,4 +1,6 @@
 import React from 'react';
+import Navbar from '../components/Navbar';
+import '../components_css/TeacherDashboard.css';
 import StudentHeader from '../components/student-details/StudentHeader';
 import AttendanceHistoryTable from '../components/student-details/AttendanceHistoryTable';
 import MoodTrendCard from '../components/student-details/MoodTrendCard';
@@ -23,16 +25,29 @@ const interventions = [
   '2024-07-23',
 ];
 
-const StudentDetails = () => (
-  <div className="min-h-screen bg-[#faf7fd] flex flex-col items-center py-10">
-    <div className="w-full max-w-5xl">
-      <StudentHeader name="Anika Sharma" className="10A" />
-      <div className="flex flex-col md:flex-row gap-6 mb-8">
-        <AttendanceHistoryTable attendance={attendance} />
-        <MoodTrendCard />
+const StudentDetails = ({ setTeacher, studentId }) => (
+  <div className="sd-root">
+    <Navbar active="Reports" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
+    <div className="sd-container">
+      <div className="sd-header">
+        <StudentHeader name={studentId ? `Student ${studentId}` : "Anika Sharma"} className="10A" />
       </div>
-      <FlaggedInstancesTable flagged={flagged} />
-      <InterventionsCard interventions={interventions} />
+      <div className="sd-section-row">
+        <div className="sd-section-col">
+          <AttendanceHistoryTable attendance={attendance} />
+        </div>
+        <div className="sd-section-col">
+          <MoodTrendCard />
+        </div>
+      </div>
+      <div className="sd-section-row">
+        <div className="sd-section-col">
+          <FlaggedInstancesTable flagged={flagged} />
+        </div>
+        <div className="sd-section-col">
+          <InterventionsCard interventions={interventions} />
+        </div>
+      </div>
     </div>
   </div>
 );

@@ -1,128 +1,69 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from '../components/Navbar';
 import '../components_css/TeacherDashboard.css';
 import TeacherHeader from '../components/teacher-dashboard/TeacherHeader';
 import ClassSummaryCards from '../components/teacher-dashboard/ClassSummaryCards';
 import StudentAttendanceTable from '../components/teacher-dashboard/StudentAttendanceTable';
 import MoodDeviationsTable from '../components/teacher-dashboard/MoodDeviationsTable';
-import StudentCheckin from './StudentCheckin';
+import { useNavigate } from 'react-router-dom';
 
-const attendanceData = [
-  {
-    name: "Aditi Sharma",
-    date: "2024-07-26",
-    status: "Present",
-    percent: "98%",
-    statusColor: "green",
-  },
-  {
-    name: "Aarav Patel",
-    date: "2024-07-26",
-    status: "Present",
-    percent: "95%",
-    statusColor: "green",
-  },
-  {
-    name: "Diya Singh",
-    date: "2024-07-26",
-    status: "Absent",
-    percent: "85%",
-    statusColor: "red",
-  },
-  {
-    name: "Ishaan Gupta",
-    date: "2024-07-26",
-    status: "Present",
-    percent: "100%",
-    statusColor: "green",
-  },
-  {
-    name: "Kavya Reddy",
-    date: "2024-07-26",
-    status: "Present",
-    percent: "97%",
-    statusColor: "green",
-  },
-  {
-    name: "Rohan Kumar",
-    date: "2024-07-26",
-    status: "Late",
-    percent: "91%",
-    statusColor: "yellow",
-  },
-  {
-    name: "Aditi Sharma",
-    date: "2024-07-26",
-    status: "Present",
-    percent: "98%",
-    statusColor: "green",
-  },
-  {
-    name: "Aarav Patel",
-    date: "2024-07-26",
-    status: "Present",
-    percent: "95%",
-    statusColor: "green",
-  },
-];
+function TeacherDashboard({ teacher, setTeacher, students: initialStudents = [] }) {
+  const [students, setStudents] = useState(initialStudents);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-const moodDeviations = [
-  {
-    name: "Priya Sharma",
-    mood: "2.5",
-    change: "-1.3",
-    changeColor: "red",
-    lastUpdated: "2024-07-26 10:00 AM",
-    link: "#",
-  },
-  {
-    name: "Anika Kapoor",
-    mood: "2.7",
-    change: "-1.1",
-    changeColor: "red",
-    lastUpdated: "2024-07-26 08:30 AM",
-    link: "#",
-  },
-  {
-    name: "Aryan Kumar",
-    mood: "4.9",
-    change: "+1.1",
-    changeColor: "green",
-    lastUpdated: "2024-07-26 11:15 AM",
-    link: "#",
-  },
-];
+  // Remove useEffect that fetches students
 
-function TeacherDashboard() {
-  const [section, setSection] = useState('Dashboard');
+  console.log('TeacherDashboard students:', students);
+
+  // Prepare attendance data for table
+  const today = new Date().toISOString().slice(0, 10);
+  const attendanceData = (students && students.length > 0)
+    ? students.map(s => ({
+        name: s.username || s.name || s.studentID,
+        studentID: s.studentID || s._id,
+        date: today,
+        status: 'Present',
+        percent: '90%',
+        statusColor: 'green',
+      }))
+    : [];
+
   return (
     <div className="tdb-root">
-      <Navbar active={section} showLinks={true} currentRole="teacher" onNavClick={setSection} />
+      <Navbar active="Dashboard" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
       <div className="tdb-main">
-        {section === 'Attendance' ? (
-          <StudentCheckin />
-        ) : (
-          <>
-            <div className="tdb-header">
-              <h1>Teacher's Dashboard: Class 10A</h1>
-              <p>An overview of your class's mood and attendance.</p>
-            </div>
-            <div className="tdb-content">
-              <section>
-                <h2>Class Summary</h2>
-                <ClassSummaryCards />
-              </section>
-              <section>
-                <h2>Student Attendance</h2>
-                <StudentAttendanceTable attendanceData={attendanceData} />
-              </section>
-              <section>
-                <h2>Students with Notable Mood Deviations</h2>
-                <MoodDeviationsTable moodDeviations={moodDeviations} />
-              </section>
-            </div>
-          </>
-        )}
+        <div className="tdb-main1">
+          <div className="tdb-header">
+            <h1>Teacher's Dashboard</h1>
+            {teacher && (
+              <div style={{fontSize:'1.2rem',color:'#7c19e5',fontWeight:600,marginTop:4}}>
+                {teacher.username} &mdash; {teacher.classSection}
+              </div>
+            )}
+            <p>An overview of your class's mood and attendance.</p>
+          </div>
+          <div className="tdb-content">
+            <section>
+              <h2>Class Summary</h2>
+              <ClassSummaryCards />
+            </section>
+            <section>
+              <h2>Student Attendance</h2>
+              {loading ? <div>Loading students...</div> : (
+                attendanceData.length > 0 ? (
+                  <StudentAttendanceTable attendanceData={attendanceData} />
+                ) : (
+                  <div>No students found.</div>
+                )
+              )}
+            </section>
+            <section>
+              <h2>Students with Notable Mood Deviations</h2>
+              <MoodDeviationsTable moodDeviations={[]} />
+            </section>
+          </div>
+        </div>
       </div>
     </div>
   );

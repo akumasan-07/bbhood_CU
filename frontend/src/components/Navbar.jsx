@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../components_css/Navbar.module.css';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, onNavClick }) => {
+const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, setTeacher, setStudent }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const avatarRef = useRef(null);
@@ -38,9 +39,23 @@ const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, on
   const handleProfileClick = () => {
     if (showLinks) setProfileDropdownOpen((open) => !open);
   };
-  const handleLogout = () => {
-    // Placeholder: Add your logout logic here (clear tokens, redirect, etc.)
-    alert('Logged out!');
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (setTeacher) setTeacher(null);
+      if (setStudent) setStudent(null);
+      toast.success('Logged out!');
+      navigate('/teacher/login');
+    } catch (err) {
+      if (setTeacher) setTeacher(null);
+      if (setStudent) setStudent(null);
+      toast.success('Logged out!');
+      navigate('/teacher/login');
+    }
   };
 
   const handleSelect = (role) => {
@@ -58,8 +73,22 @@ const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, on
       </div>
       <div className={styles.rightSection}>
         {showLinks && <>
-          <a className={styles.link + ' ' + (active === 'Dashboard' ? styles.active : '')} href="#" onClick={e => { e.preventDefault(); onNavClick && onNavClick('Dashboard'); }}>Dashboard</a>
-          <a className={styles.link + ' ' + (active === 'Attendance' ? styles.active : '')} href="#" onClick={e => { e.preventDefault(); onNavClick && onNavClick('Attendance'); }}>Attendance</a>
+          <a
+            className={styles.link + ' ' + (active === 'Dashboard' ? styles.active : '')}
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              if (currentRole === 'teacher') navigate('/teacher/dashboard');
+            }}
+          >Dashboard</a>
+          <a
+            className={styles.link + ' ' + (active === 'Attendance' ? styles.active : '')}
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              if (currentRole === 'teacher') navigate('/teacher/attendance');
+            }}
+          >Attendance</a>
           <a className={styles.link + ' ' + (active === 'Reports' ? styles.active : '')} href="#" onClick={e => { e.preventDefault(); onNavClick && onNavClick('Reports'); }}>Reports</a>
         </>}
         <div className={styles.avatarWrapper} ref={avatarRef}>

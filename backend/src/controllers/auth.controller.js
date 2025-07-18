@@ -64,7 +64,9 @@ export const teachLogin = async (req,res)=>{
         if(!isMatch){
             return res.status(401).json({ success: false, message: "Invalid password" });
         }
-        return res.status(200).json({ success: true, message: "Login successful", teacher });
+        // Fetch all students for this teacher
+        const students = await Student.find({ teacherID: teacher._id });
+        return res.status(200).json({ success: true, message: "Login successful", teacher, students });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ success: false, message: "Internal server error!" });
@@ -134,6 +136,14 @@ export const studentLogin = async (req,res)=>{
         if(!isMatch){
             return res.status(401).json({ success: false, message: "Invalid password" });
         }
+        // Create JWT and set as cookie
+        const token = jwt.sign({ id: student._id, role: 'student' }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         return res.status(200).json({ success: true, message: "Login successful", student });
     } catch (error) {
         console.error(error);
@@ -192,9 +202,93 @@ export const counselorLogin = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ success: false, message: "Invalid password" });
         }
+        // Create JWT and set as cookie
+        const token = jwt.sign({ id: counselor._id, role: 'counselor' }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         return res.status(200).json({ success: true, message: "Login successful", counselor });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ success: false, message: "Internal server error!" });
+    }
+};
+
+// Logout endpoint
+export const logout = (req, res) => {
+    res.clearCookie('jwt', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+    });
+    return res.status(200).json({ success: true, message: 'Logged out successfully' });
+};
+
+// /me endpoint to get current user from JWT cookie
+export const getCurrentUser = async (req, res) => {
+    try {
+        const token = req.cookies.jwt;
+        if (!token) return res.status(401).json({ success: false, message: 'Not authenticated' });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        let user = null;
+        if (decoded.role === 'teacher') {
+            user = await Admin.findById(decoded.id);
+        } else if (decoded.role === 'student') {
+            user = await Student.findById(decoded.id);
+        } else if (decoded.role === 'counselor') {
+            user = await Counselor.findById(decoded.id);
+        }
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        return res.status(200).json({ success: true, user, role: decoded.role });
+    } catch (err) {
+        return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    }
+};
+
+// Get all students for the currently authenticated teacher
+export const getTeacherStudents = async (req, res) => {
+    try {
+        const token = req.cookies.jwt;
+        if (!token) return res.status(401).json({ success: false, message: 'Not authenticated' });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.role !== 'teacher') return res.status(403).json({ success: false, message: 'Forbidden' });
+        // Get all students with teacherID = decoded.id
+        const students = await Student.find({ teacherID: decoded.id });
+        // Map to attendance table format
+        const attendanceData = students.map(s => ({
+            name: s.username,
+            studentID: s.studentID,
+            date: '2024-07-26',
+            status: 'Present',
+            percent: '90%',
+            statusColor: 'green',
+        }));
+        return res.status(200).json({ success: true, students: attendanceData });
+    } catch (err) {
+        return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+    }
+};
+
+// Utility endpoint to fix teacher-student links for all existing students and teachers
+export const fixTeacherStudentLinks = async (req, res) => {
+    try {
+        // Clear all teachers' students arrays
+        await Admin.updateMany({}, { $set: { students: [] } });
+        // For each student, add their _id to their teacher's students array
+        const students = await Student.find({});
+        for (const student of students) {
+            if (student.teacherID) {
+                await Admin.findByIdAndUpdate(
+                    student.teacherID,
+                    { $addToSet: { students: student._id } }
+                );
+            }
+        }
+        return res.status(200).json({ success: true, message: 'Teacher-student links fixed.' });
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Error fixing links', error: err.message });
     }
 };

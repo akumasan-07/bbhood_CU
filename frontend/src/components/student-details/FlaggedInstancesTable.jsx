@@ -1,21 +1,21 @@
 import React from 'react';
 
 const FlaggedInstancesTable = ({ flagged }) => (
-  <div className="mb-8">
+  <div className="sd-flagged-table">
     <div className="font-bold text-lg mb-4">Flagged Instances</div>
-    <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto">
-      <table className="min-w-full text-left">
+    <div style={{overflowX: 'auto'}}>
+      <table className="sd-table">
         <thead>
-          <tr className="text-gray-400 text-sm">
-            <th className="py-3 px-4 font-medium">DATE</th>
-            <th className="py-3 px-4 font-medium">DESCRIPTION</th>
+          <tr>
+            <th>DATE</th>
+            <th>DESCRIPTION</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody>
           {flagged.map((row, i) => (
             <tr key={i}>
-              <td className="py-3 px-4 text-gray-700">{row.date}</td>
-              <td className="py-3 px-4 text-gray-700">{row.desc}</td>
+              <td>{row.date}</td>
+              <td>{row.desc}</td>
             </tr>
           ))}
         </tbody>
