@@ -27,13 +27,7 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
 
   const handleMark = async (studentId, status) => {
     let actualStatus = status;
-    if (status === 'Late') {
-      const now = new Date();
-      if (now.getHours() >= 12) {
-        actualStatus = 'Present';
-        toast.info('After 12 PM, marking as Present instead of Late.');
-      }
-    }
+    // Remove after-12-PM logic: always allow 'Late'
     try {
       const res = await fetch('http://localhost:3000/api/auth/attendance/mark', {
         method: 'POST',
@@ -49,7 +43,7 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
                 ...row,
                 status: actualStatus,
                 percent: data.student.totalClass > 0 ? `${Math.round((data.student.totalAttendance / data.student.totalClass) * 100)}%` : '0%',
-                statusColor: actualStatus === 'Present' ? 'green' : actualStatus === 'Absent' ? 'red' : 'yellow',
+                statusColor: actualStatus === 'Present' ? 'green' : actualStatus === 'Absent' ? 'red' : actualStatus === 'Late' ? 'yellow' : '',
                 totalAttendance: data.student.totalAttendance,
                 totalClass: data.student.totalClass,
                 date: new Date().toISOString().slice(0, 10),
