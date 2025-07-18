@@ -7,8 +7,7 @@ import StudentAttendanceTable from '../components/teacher-dashboard/StudentAtten
 import MoodDeviationsTable from '../components/teacher-dashboard/MoodDeviationsTable';
 import { useNavigate } from 'react-router-dom';
 
-function TeacherDashboard({ teacher, setTeacher, students: initialStudents = [] }) {
-  const [students, setStudents] = useState(initialStudents);
+function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAttendanceData }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -18,16 +17,8 @@ function TeacherDashboard({ teacher, setTeacher, students: initialStudents = [] 
 
   // Prepare attendance data for table
   const today = new Date().toISOString().slice(0, 10);
-  const attendanceData = (students && students.length > 0)
-    ? students.map(s => ({
-        name: s.username || s.name || s.studentID,
-        studentID: s.studentID || s._id,
-        date: today,
-        status: 'Present',
-        percent: '90%',
-        statusColor: 'green',
-      }))
-    : [];
+
+  // Update attendanceData in StudentAttendanceTable and pass to ClassSummaryCards
 
   return (
     <div className="tdb-root">
@@ -46,13 +37,13 @@ function TeacherDashboard({ teacher, setTeacher, students: initialStudents = [] 
           <div className="tdb-content">
             <section>
               <h2>Class Summary</h2>
-              <ClassSummaryCards />
+              <ClassSummaryCards students={attendanceData} />
             </section>
             <section>
               <h2>Student Attendance</h2>
               {loading ? <div>Loading students...</div> : (
                 attendanceData.length > 0 ? (
-                  <StudentAttendanceTable attendanceData={attendanceData} />
+                  <StudentAttendanceTable attendanceData={attendanceData} setAttendanceData={setAttendanceData} />
                 ) : (
                   <div>No students found.</div>
                 )

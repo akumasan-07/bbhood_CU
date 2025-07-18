@@ -23,6 +23,7 @@ function ProtectedRoute({ element, user, redirectTo }) {
 function App() {
   const [teacher, setTeacher] = useState(null);
   const [teacherStudents, setTeacherStudents] = useState([]); // NEW
+  const [attendanceData, setAttendanceData] = useState([]); // NEW
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,12 +65,12 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/teacher/signup" replace />} />
           <Route path="/teacher/signup" element={<RouteRenderer role="teacher" mode="signup" FormComponent={TeacherSignup} setTeacher={setTeacher} />} />
-          <Route path="/teacher/login" element={<RouteRenderer role="teacher" mode="login" FormComponent={TeacherLogin} setTeacher={setTeacher} setTeacherStudents={setTeacherStudents} />} />
+          <Route path="/teacher/login" element={<RouteRenderer role="teacher" mode="login" FormComponent={TeacherLogin} setTeacher={setTeacher} setTeacherStudents={setTeacherStudents} setAttendanceData={setAttendanceData} />} />
           <Route path="/student/signup" element={<RouteRenderer role="student" mode="signup" FormComponent={StudentSignup} setStudent={setStudent} />} />
           <Route path="/student/login" element={<RouteRenderer role="student" mode="login" FormComponent={StudentLogin} setStudent={setStudent} />} />
           <Route path="/counselor/signup" element={<RouteRenderer role="counselor" mode="signup" FormComponent={CounselorSignup} />} />
           <Route path="/counselor/login" element={<RouteRenderer role="counselor" mode="login" FormComponent={CounselorLogin} />} />
-          <Route path="/teacher/dashboard" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<TeacherDashboard teacher={teacher} setTeacher={setTeacher} students={teacherStudents} />} />} />
+          <Route path="/teacher/dashboard" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<TeacherDashboard teacher={teacher} setTeacher={setTeacher} students={teacherStudents} attendanceData={attendanceData} setAttendanceData={setAttendanceData} />} />} />
           <Route path="/teacher/attendance" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<StudentCheckin />} />} />
           <Route path="/student/dashboard" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDashboard student={student} setStudent={setStudent} />} />} />
           <Route path="/student/details" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDetails />} />} />
@@ -80,7 +81,7 @@ function App() {
   );
 }
 
-function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setTeacherStudents }) {
+function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setTeacherStudents, setAttendanceData }) {
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -114,6 +115,19 @@ function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setT
             ? (teacherObj, studentsArr) => {
                 setTeacher(teacherObj);
                 if (setTeacherStudents) setTeacherStudents(studentsArr || []);
+                if (setAttendanceData) {
+                  const today = new Date().toISOString().slice(0, 10);
+                  setAttendanceData((studentsArr || []).map(s => ({
+                    name: s.username || s.name || s.studentID,
+                    studentID: s.studentID || s._id,
+                    date: today,
+                    status: 'Present',
+                    percent: s.totalClass > 0 ? `${Math.round((s.totalAttendance / s.totalClass) * 100)}%` : '0%',
+                    statusColor: 'green',
+                    totalAttendance: typeof s.totalAttendance === 'number' ? s.totalAttendance : 0,
+                    totalClass: typeof s.totalClass === 'number' ? s.totalClass : 0,
+                  })));
+                }
                 navigate('/teacher/dashboard');
               }
             : setStudent && role === 'student'

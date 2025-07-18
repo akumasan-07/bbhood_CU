@@ -47,7 +47,7 @@ const StudentLogin = ({ onSwitch, onModeChange, onSuccess }) => {
     }
     // Real API call
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/student-login', form);
+      const res = await axios.post('http://localhost:3000/api/auth/student-login', form, { withCredentials: true });
       if (onSuccess && res.data.student) {
         toast.success('Successfully logged in!');
         onSuccess(res.data.student);

@@ -8,7 +8,7 @@ import AuthSwitcher from './AuthSwitcher';
 const AuthPage = () => {
   // role: 'teacher' or 'student', mode: 'signup' or 'login'
   const [role, setRole] = useState('teacher');
-  const [mode, setMode] = useState('signup');
+  const [mode, setMode] = useState('login');
 
   const handleSwitch = (newRole) => {
     setRole(newRole);

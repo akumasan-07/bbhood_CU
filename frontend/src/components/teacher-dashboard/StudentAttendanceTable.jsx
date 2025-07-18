@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -9,30 +9,50 @@ const statusOptions = [
   { label: 'Late', value: 'Late' },
 ];
 
-const StudentAttendanceTable = ({ attendanceData: initialAttendanceData }) => {
-  console.log('Attendance data:', initialAttendanceData);
+const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
+  console.log('Attendance data:', attendanceData);
   const [statusFilter, setStatusFilter] = useState('');
-  const [attendanceData, setAttendanceData] = useState(initialAttendanceData);
   const navigate = useNavigate();
 
+  // Track last attendance date in localStorage
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const lastAttendanceDate = localStorage.getItem('lastAttendanceDate');
+    if (lastAttendanceDate !== today) {
+      // New day: reset all statuses to dash
+      setAttendanceData(prev => prev.map(row => ({ ...row, status: '–', statusColor: '', date: today })));
+      localStorage.setItem('lastAttendanceDate', today);
+    }
+  }, [setAttendanceData]);
+
   const handleMark = async (studentId, status) => {
+    let actualStatus = status;
+    if (status === 'Late') {
+      const now = new Date();
+      if (now.getHours() >= 12) {
+        actualStatus = 'Present';
+        toast.info('After 12 PM, marking as Present instead of Late.');
+      }
+    }
     try {
       const res = await fetch('http://localhost:3000/api/auth/attendance/mark', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, status }),
+        body: JSON.stringify({ studentId, status: actualStatus }),
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`${status} marked for student!`);
-        // Update the row in attendanceData
+        toast.success(`${actualStatus} marked for student!`);
         setAttendanceData(prev => prev.map(row =>
           row.studentID === studentId
             ? {
                 ...row,
-                status,
+                status: actualStatus,
                 percent: data.student.totalClass > 0 ? `${Math.round((data.student.totalAttendance / data.student.totalClass) * 100)}%` : '0%',
-                statusColor: status === 'Present' ? 'green' : status === 'Absent' ? 'red' : 'yellow',
+                statusColor: actualStatus === 'Present' ? 'green' : actualStatus === 'Absent' ? 'red' : 'yellow',
+                totalAttendance: data.student.totalAttendance,
+                totalClass: data.student.totalClass,
+                date: new Date().toISOString().slice(0, 10),
               }
             : row
         ));
@@ -73,6 +93,7 @@ const StudentAttendanceTable = ({ attendanceData: initialAttendanceData }) => {
                 <th>Date</th>
                 <th>Status</th>
                 <th>Attendance %</th>
+                <th>Class Attendance</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -88,11 +109,20 @@ const StudentAttendanceTable = ({ attendanceData: initialAttendanceData }) => {
                   <td style={{ color: '#140e1b', fontWeight: 600 }}>{row.name}</td>
                   <td>{row.date}</td>
                   <td>
-                    <span className={`tdb-status ${row.status === 'Present' ? 'tdb-status-present' : row.status === 'Absent' ? 'tdb-status-absent' : row.status === 'Late' ? 'tdb-status-late' : ''}`}>
-                      {row.status}
-                    </span>
+                    {row.status === '–' ? (
+                      <span style={{ color: '#888', fontWeight: 600 }}>–</span>
+                    ) : (
+                      <span className={`tdb-status ${row.status === 'Present' ? 'tdb-status-present' : row.status === 'Absent' ? 'tdb-status-absent' : row.status === 'Late' ? 'tdb-status-late' : ''}`}>
+                        {row.status}
+                      </span>
+                    )}
                   </td>
                   <td style={{ color: row.statusColor === 'red' ? '#e53935' : row.statusColor === 'yellow' ? '#b45309' : '#065f46', fontWeight: 600 }}>{row.percent}</td>
+                  <td style={{ fontWeight: 600 }}>
+                    {typeof row.totalAttendance !== 'undefined' && typeof row.totalClass !== 'undefined'
+                      ? `${row.totalAttendance}/${row.totalClass}`
+                      : '0/0'}
+                  </td>
                   <td>
                     <button style={{ marginRight: 8, background: '#059669', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleMark(row.studentID, 'Present'); }}>Present</button>
                     <button style={{ marginRight: 8, background: '#b45309', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleMark(row.studentID, 'Late'); }}>Late</button>

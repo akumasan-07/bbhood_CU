@@ -47,7 +47,7 @@ const CounselorLogin = ({ onSwitch, onModeChange, onSuccess }) => {
     }
     // Real API call
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/counselor-login', form);
+      const res = await axios.post('http://localhost:3000/api/auth/counselor-login', form, { withCredentials: true });
       if (res.data && res.data.counselor) {
         toast.success('Successfully logged in!');
         if (onSuccess) onSuccess(res.data.counselor);

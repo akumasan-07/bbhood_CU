@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import Admin from "../models/admin.model.js";
 import Student from "../models/student.model.js";
 import Counselor from "../models/counselor.model.js";
+import authenticateJWT from '../middleware/authMiddleware.js';
 
 export const teachSignup = async (req, res) => {
     const {username,phone,password,email,teachID,classSection} = req.body;
@@ -66,6 +67,13 @@ export const teachLogin = async (req,res)=>{
         }
         // Fetch all students for this teacher
         const students = await Student.find({ teacherID: teacher._id });
+        const token = jwt.sign({ id: teacher._id, role: 'teacher' }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         return res.status(200).json({ success: true, message: "Login successful", teacher, students });
     } catch (error) {
         console.error(error);
@@ -228,25 +236,15 @@ export const logout = (req, res) => {
 };
 
 // /me endpoint to get current user from JWT cookie
-export const getCurrentUser = async (req, res) => {
+export const getCurrentUser = [authenticateJWT, async (req, res) => {
     try {
-        const token = req.cookies.jwt;
-        if (!token) return res.status(401).json({ success: false, message: 'Not authenticated' });
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        let user = null;
-        if (decoded.role === 'teacher') {
-            user = await Admin.findById(decoded.id);
-        } else if (decoded.role === 'student') {
-            user = await Student.findById(decoded.id);
-        } else if (decoded.role === 'counselor') {
-            user = await Counselor.findById(decoded.id);
-        }
+        const user = await Admin.findById(req.user.id);
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-        return res.status(200).json({ success: true, user, role: decoded.role });
+        return res.status(200).json({ success: true, user, role: req.user.role });
     } catch (err) {
         return res.status(401).json({ success: false, message: 'Invalid or expired token' });
     }
-};
+}];
 
 // Get all students for the currently authenticated teacher
 export const getTeacherStudents = async (req, res) => {
