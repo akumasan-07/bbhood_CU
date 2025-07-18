@@ -152,7 +152,7 @@ function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setT
         }
       />
     </div>
-  );
+  ); 
 }
 
 export default App;
