@@ -39,6 +39,9 @@ def predict():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     file = request.files['file']
+    import imghdr
+    if not imghdr.what(file):
+        return jsonify({'error': 'Uploaded file is not a valid image'}), 400
     image_bytes = file.read()
     emotion = predict_emotion(image_bytes)
     return jsonify({'emotion': emotion})
