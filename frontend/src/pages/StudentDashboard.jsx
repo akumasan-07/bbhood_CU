@@ -1,6 +1,6 @@
 import React from "react";
 
-const AttendancePage = () => {
+const StudentDashboard = () => {
   const attendanceData = [
     { date: "2024-07-26", checkIn: "08:02 AM", status: "Present" },
     { date: "2024-07-25", checkIn: "08:05 AM", status: "Present" },
@@ -91,4 +91,4 @@ const AttendancePage = () => {
   );
 };
 
-export default AttendancePage;
+export default StudentDashboard;

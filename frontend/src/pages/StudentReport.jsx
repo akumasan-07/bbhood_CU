@@ -23,7 +23,7 @@ const interventions = [
   '2024-07-23',
 ];
 
-const StudentDetails = () => (
+const StudentReport = () => (
   <div className="min-h-screen bg-[#faf7fd] flex flex-col items-center py-10">
     <div className="w-full max-w-5xl">
       <StudentHeader name="Anika Sharma" className="10A" />
@@ -37,4 +37,4 @@ const StudentDetails = () => (
   </div>
 );
 
-export default StudentDetails; 
+export default StudentReport; 
