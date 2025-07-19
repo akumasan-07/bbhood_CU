@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../components_css/TeacherDashboard.css';
 import StudentHeader from '../components/student-details/StudentHeader';
@@ -25,31 +26,42 @@ const interventions = [
   '2024-07-23',
 ];
 
-const StudentDetails = ({ setTeacher, studentId }) => (
-  <div className="sd-root">
-    <Navbar active="Reports" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
-    <div className="sd-container">
-      <div className="sd-header">
-        <StudentHeader name={studentId ? `Student ${studentId}` : "Anika Sharma"} className="10A" />
-      </div>
-      <div className="sd-section-row">
-        <div className="sd-section-col">
-          <AttendanceHistoryTable attendance={attendance} />
+const StudentDetails = ({ setTeacher, studentId: propStudentId, students }) => {
+  const params = useParams();
+  const studentId = propStudentId || params.studentId;
+  // Try to get the student name from the students prop if available
+  let studentName = studentId;
+  if (students && Array.isArray(students)) {
+    const found = students.find(s => s.studentID === studentId || s._id === studentId);
+    if (found) studentName = found.username || found.name || studentId;
+  }
+
+  return (
+    <div className="sd-root">
+      <Navbar active="Reports" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
+      <div className="sd-container">
+        <div className="sd-header">
+          <StudentHeader name={studentName} className="10A" />
         </div>
-        <div className="sd-section-col">
-          <MoodTrendCard />
+        <div className="sd-section-row">
+          <div className="sd-section-col">
+            <AttendanceHistoryTable attendance={attendance} />
+          </div>
+          <div className="sd-section-col">
+            <MoodTrendCard />
+          </div>
         </div>
-      </div>
-      <div className="sd-section-row">
-        <div className="sd-section-col">
-          <FlaggedInstancesTable flagged={flagged} />
-        </div>
-        <div className="sd-section-col">
-          <InterventionsCard interventions={interventions} />
+        <div className="sd-section-row">
+          <div className="sd-section-col">
+            <FlaggedInstancesTable flagged={flagged} />
+          </div>
+          <div className="sd-section-col">
+            <InterventionsCard interventions={interventions} />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default StudentDetails; 

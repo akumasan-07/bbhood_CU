@@ -6,6 +6,7 @@ const CheckinCard = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [prediction, setPrediction] = useState('');
+  const [error, setError] = useState('');
   const videoRef = useRef();
   const canvasRef = useRef();
   let stream = null;
@@ -48,6 +49,7 @@ const CheckinCard = () => {
     e.preventDefault();
     setSubmitted(true);
     setPrediction('');
+    setError('');
     if (!photo) return;
     // Send photo to backend for prediction
     try {
@@ -62,8 +64,23 @@ const CheckinCard = () => {
       });
       const data = await response.json();
       setPrediction(data.emotion);
+      // Send mood to backend
+      const moodRes = await fetch('http://localhost:5000/api/student/mood', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: roll, mood: data.emotion })
+      });
+      const moodData = await moodRes.json();
+      if (!moodRes.ok) {
+        if (moodRes.status === 404) {
+          setError('Student not found. Please check the roll number.');
+        } else {
+          setError(moodData.message || 'Error saving mood.');
+        }
+      }
     } catch (error) {
       setPrediction('Error connecting to backend');
+      setError('Error connecting to backend');
     }
   };
 
@@ -72,13 +89,11 @@ const CheckinCard = () => {
       <h1 className="text-3xl font-extrabold mb-2 text-center">Student Check-In</h1>
       <p className="text-gray-500 mb-7 text-center">Please enter your roll number to proceed.</p>
       <input
-        type="tel"
-        inputMode="numeric"
-        pattern="[0-9]*"
+        type="text"
         placeholder="Enter your Roll Number"
         className="w-full border border-gray-200 rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-purple-200 text-lg"
         value={roll}
-        onChange={e => setRoll(e.target.value.replace(/[^0-9]/g, ''))}
+        onChange={e => setRoll(e.target.value)}
         required
       />
       {!photo && !showCamera && (
@@ -111,12 +126,31 @@ const CheckinCard = () => {
       {photo && (
         <>
           <img src={photo} alt="Preview" className="w-32 h-32 object-cover rounded-xl mb-4 border border-gray-200" />
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg py-3 rounded-full shadow-md transition mb-2"
-          >
-            Submit
-          </button>
+          <div className="w-full flex flex-row items-center gap-2 mb-2">
+            <button
+              type="submit"
+              className="flex-1 flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg py-3 rounded-full shadow-md transition"
+            >
+              Submit
+            </button>
+            <button
+              type="button"
+              className="flex items-center justify-center rounded-full p-2 bg-transparent transition shadow-none"
+              title="Refresh"
+              onClick={() => {
+                setRoll('');
+                setPhoto(null);
+                setPrediction('');
+                setSubmitted(false);
+                setShowCamera(false);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 48 48" stroke="#2196f3" strokeWidth="3">
+                <path d="M36 24a12 12 0 1 0-4.22 9.14" stroke="#2196f3" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                <polyline points="36 28 36 24 32 24" stroke="#2196f3" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
         </>
       )}
       {prediction && (
@@ -124,6 +158,9 @@ const CheckinCard = () => {
       )}
       {submitted && !prediction && (
         <div className="text-green-600 font-semibold mt-2">Photo submitted! (Backend integration coming soon)</div>
+      )}
+      {error && (
+        <div className="text-red-600 font-semibold mt-2">{error}</div>
       )}
     </form>
   );

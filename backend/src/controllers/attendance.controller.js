@@ -22,4 +22,21 @@ export const markAttendance = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: "Error marking attendance", error: err.message });
   }
+};
+
+export const updateStudentMood = async (req, res) => {
+  const { studentId, mood } = req.body;
+  try {
+    const student = await Student.findOneAndUpdate(
+      { studentID: studentId },
+      { mood },
+      { new: true }
+    );
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+    res.json({ success: true, student });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error updating mood", error: err.message });
+  }
 }; 
