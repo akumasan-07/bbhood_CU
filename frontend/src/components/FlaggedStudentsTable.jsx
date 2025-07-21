@@ -4,10 +4,12 @@ import '../components_css/TeacherDashboard.css';
 
 const FlaggedStudentsTable = ({ flaggedStudents }) => {
   const navigate = useNavigate();
-
+  const flaggedCount = flaggedStudents.length;
   return (
     <div style={{ marginTop: 24 }}>
-      <h2 style={{ fontWeight: 800, fontSize: '2rem', marginBottom: 12 }}>Students Flagged for Emotional Distress</h2>
+      <h2 style={{ fontWeight: 800, fontSize: '2rem', marginBottom: 12 }}>
+        Students Flagged for Emotional Distress ({flaggedCount})
+      </h2>
       <table className="flagged-table">
         <thead>
           <tr>

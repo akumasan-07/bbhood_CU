@@ -1,7 +1,7 @@
 import Student from "../models/student.model.js";
 
 export const markAttendance = async (req, res) => {
-  const { studentId, status } = req.body;
+  const { studentId, status, mood } = req.body;
   try {
     const now = new Date();
     const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -17,7 +17,8 @@ export const markAttendance = async (req, res) => {
       attendance: {
         date: now,
         status,
-        time
+        time,
+        mood: mood || '-' // Store mood if provided, else '-'
       }
     };
     const student = await Student.findOneAndUpdate(
@@ -32,4 +33,19 @@ export const markAttendance = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: "Error marking attendance", error: err.message });
   }
+};
+
+// Endpoint to check if today's attendance is already marked for a student
+export const checkAttendanceMarked = async (req, res) => {
+  const { studentId } = req.query;
+  if (!studentId) return res.status(400).json({ alreadyMarked: false, message: 'No studentId provided' });
+
+  const student = await Student.findOne({ studentID: studentId });
+  if (!student) return res.status(404).json({ alreadyMarked: false, message: 'Student not found' });
+
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadyMarked = Array.isArray(student.attendance) &&
+    student.attendance.some(record => new Date(record.date).toISOString().slice(0, 10) === today);
+
+  return res.json({ alreadyMarked });
 }; 

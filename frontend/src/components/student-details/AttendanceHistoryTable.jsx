@@ -17,6 +17,7 @@ const moodColor = mood => {
 const AttendanceHistoryTable = ({ attendance }) => {
   // If attendance is not an array, fallback to empty
   const records = Array.isArray(attendance) ? attendance : [];
+  console.log('AttendanceHistoryTable records:', records);
   return (
     <div className="sd-card">
       <h3 className="summary-card-title">Attendance History</h3>
@@ -33,18 +34,13 @@ const AttendanceHistoryTable = ({ attendance }) => {
           {records.length === 0 ? (
             <tr><td colSpan={4}>No attendance records found.</td></tr>
           ) : records.map((row, idx) => {
-            // Format date and time
-            let date = '--', time = '--', status = '--';
-            if (row.date) {
-              const d = new Date(row.date);
-              if (!isNaN(d)) {
-                date = d.toISOString().slice(0, 10);
-                time = row.time || d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-              }
-            }
-            if (row.status) status = row.status;
+            const d = row.date ? new Date(row.date) : null;
+            const date = d && !isNaN(d) ? d.toISOString().slice(0, 10) : '-';
+            const time = d && !isNaN(d) ? (row.time || d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })) : '-';
+            const status = row.status || '-';
+            const mood = row.mood || '-';
             return (
-              <tr key={idx}>
+              <tr key={row._id || idx}>
                 <td>{date}</td>
                 <td>{time}</td>
                 <td>
@@ -54,7 +50,7 @@ const AttendanceHistoryTable = ({ attendance }) => {
                     status === 'Absent' ? 'sd-status-absent' : ''
                   }>{status}</span>
                 </td>
-                <td>-</td>
+                <td>{mood}</td>
               </tr>
             );
           })}

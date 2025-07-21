@@ -35,7 +35,8 @@ const studentSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: true },
     attendance: [{
         date: { type: Date },
-        status: { type: String, enum: ["present", "absent", "late"] }
+        status: { type: String, enum: ["present", "absent", "late"] },
+        mood: { type: String, default: '-' }
     }],
     totalAttendance: {
       type: Number,

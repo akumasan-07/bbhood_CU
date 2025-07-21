@@ -25,8 +25,26 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
     }
   }, [setAttendanceData]);
 
+  // Fetch latest attendance data from backend
+  const fetchAttendanceData = async () => {
+    try {
+      const res = await fetch('/api/teacher/students'); // Adjust endpoint if needed
+      const data = await res.json();
+      if (data.students) setAttendanceData(data.students);
+    } catch (err) {
+      // Optionally handle error
+    }
+  };
+
   const handleMark = async (studentId, status) => {
     let actualStatus = status;
+    // Prevent duplicate attendance marking
+    const row = attendanceData.find(r => r.studentID === studentId);
+    const today = new Date().toISOString().slice(0, 10);
+    if (row && Array.isArray(row.attendance) && row.attendance.some(record => new Date(record.date).toISOString().slice(0, 10) === today)) {
+      toast.error('Attendance already marked for today!');
+      return;
+    }
     try {
       const res = await fetch('http://localhost:3000/api/auth/attendance/mark', {
         method: 'POST',
@@ -36,21 +54,24 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
       const data = await res.json();
       if (data.success) {
         toast.success(`${actualStatus} marked for student!`);
+        // Immediately update the status in the table for instant feedback
         setAttendanceData(prev => prev.map(row =>
           row.studentID === studentId
             ? {
                 ...row,
                 status: actualStatus,
-                percent: data.student.totalClass > 0 ? `${Math.round((data.student.totalAttendance / data.student.totalClass) * 100)}%` : '0%',
-                statusColor: actualStatus === 'Present' ? 'green' : actualStatus === 'Absent' ? 'red' : actualStatus === 'Late' ? 'yellow' : '',
-                totalAttendance: data.student.totalAttendance,
-                totalClass: data.student.totalClass,
-                date: new Date().toISOString().slice(0, 10),
+                // Optionally update attendance array for disabling logic
+                attendance: Array.isArray(row.attendance)
+                  ? [...row.attendance, {
+                      date: new Date(),
+                      status: actualStatus
+                    }]
+                  : [{ date: new Date(), status: actualStatus }]
               }
             : row
         ));
-        // Store last mark time for this student
-        localStorage.setItem(`lastAttendanceMark_${studentId}`, new Date().toISOString());
+        // Optionally, also fetch latest data from backend for full sync
+        await fetchAttendanceData();
       } else {
         toast.error(data.message || 'Failed to mark attendance');
       }
@@ -59,17 +80,15 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
     }
   };
 
-  // Helper to check if buttons should be disabled for a student
-  const isAttendanceDisabled = (studentId) => {
-    const lastMark = localStorage.getItem(`lastAttendanceMark_${studentId}`);
-    if (!lastMark) return false;
-    const lastDate = new Date(lastMark);
-    const now = new Date();
-    // Next allowed time is 7am the day after last mark
-    const nextAllowed = new Date(lastDate);
-    nextAllowed.setDate(lastDate.getDate() + 1);
-    nextAllowed.setHours(7, 0, 0, 0);
-    return now < nextAllowed;
+  // Helper to check if buttons should be disabled for a student (based on backend attendance array)
+  const isAttendanceDisabled = (row) => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (Array.isArray(row.attendance)) {
+      return row.attendance.some(
+        record => new Date(record.date).toISOString().slice(0, 10) === today
+      );
+    }
+    return false;
   };
 
   const filteredData = statusFilter
@@ -132,9 +151,16 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
                       : '0/0'}
                   </td>
                   <td>
-                    <button style={{ marginRight: 8, background: '#059669', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row.studentID) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row.studentID) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row.studentID)) handleMark(row.studentID, 'Present'); }} disabled={isAttendanceDisabled(row.studentID)}>Present</button>
-                    <button style={{ marginRight: 8, background: '#b45309', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row.studentID) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row.studentID) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row.studentID)) handleMark(row.studentID, 'Late'); }} disabled={isAttendanceDisabled(row.studentID)}>Late</button>
-                    <button style={{ background: '#e53935', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row.studentID) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row.studentID) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row.studentID)) handleMark(row.studentID, 'Absent'); }} disabled={isAttendanceDisabled(row.studentID)}>Absent</button>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                      <div>
+                        <button style={{ marginRight: 8, background: '#059669', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row)) handleMark(row.studentID, 'Present'); }} disabled={isAttendanceDisabled(row)} title={isAttendanceDisabled(row) ? 'Attendance already marked for today' : ''}>Present</button>
+                        <button style={{ marginRight: 8, background: '#b45309', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row)) handleMark(row.studentID, 'Late'); }} disabled={isAttendanceDisabled(row)} title={isAttendanceDisabled(row) ? 'Attendance already marked for today' : ''}>Late</button>
+                        <button style={{ background: '#e53935', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row)) handleMark(row.studentID, 'Absent'); }} disabled={isAttendanceDisabled(row)} title={isAttendanceDisabled(row) ? 'Attendance already marked for today' : ''}>Absent</button>
+                      </div>
+                      {isAttendanceDisabled(row) && (
+                        <span style={{ color: '#b45309', fontSize: '0.95em', marginTop: 2 }}>Attendance already marked for today</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

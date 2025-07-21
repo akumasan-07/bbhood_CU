@@ -20,6 +20,17 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
 
   // Update attendanceData in StudentAttendanceTable and pass to ClassSummaryCards
 
+  // Example flagged students array (replace with real data as needed)
+  // For demo: consider students with status 'Late' or 'Absent' today as flagged
+  const flaggedStudents = attendanceData.filter(s => {
+    if (!Array.isArray(s.attendance)) return false;
+    return s.attendance.some(a => {
+      const d = a.date ? new Date(a.date).toISOString().slice(0, 10) : '';
+      return d === today && (a.status === 'Late' || a.status === 'Absent');
+    });
+  });
+  const flaggedCount = flaggedStudents.length;
+
   return (
     <div className="tdb-root">
       <Navbar active="Dashboard" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
@@ -37,7 +48,7 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
           <div className="tdb-content">
             <section>
               <h2>Class Summary</h2>
-              <ClassSummaryCards students={attendanceData} />
+              <ClassSummaryCards students={attendanceData} flaggedCount={flaggedCount} />
             </section>
             <section>
               <h2>Student Attendance</h2>
@@ -50,8 +61,8 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
               )}
             </section>
             <section>
-              <h2>Students with Notable Mood Deviations</h2>
-              <MoodDeviationsTable moodDeviations={[]} />
+              <h2>Students with Notable Mood Deviations ({flaggedCount})</h2>
+              <MoodDeviationsTable moodDeviations={flaggedStudents} />
             </section>
           </div>
         </div>

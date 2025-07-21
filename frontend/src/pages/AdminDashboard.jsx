@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import SummaryCards from '../components/SummaryCards';
-import SearchBar from '../components/SearchBar';
 import MoodTrends from '../components/MoodTrends';
 import FlaggedStudentsTable from '../components/FlaggedStudentsTable';
 import '../components_css/TeacherDashboard.css';
@@ -67,7 +66,6 @@ const flaggedStudents = [
 ];
 
 function AdminDashboard() {
-  const [search, setSearch] = useState('');
 
   return (
     <div className="admin-root">
@@ -77,7 +75,6 @@ function AdminDashboard() {
         <p className="admin-subtitle">An overview of student well-being and engagement.</p>
         <div className="admin-reports-row">
           <span className="admin-reports-title">Student Reports</span>
-          <SearchBar search={search} setSearch={setSearch} />
         </div>
         {/* Summary Section */}
         <div className="admin-section">

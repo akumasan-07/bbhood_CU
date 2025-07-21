@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const CheckinCard = () => {
   const [roll, setRoll] = useState('');
@@ -62,6 +63,45 @@ const CheckinCard = () => {
       });
       const data = await response.json();
       setPrediction(data.emotion);
+      // After prediction, mark attendance as Present and store mood
+      if (data.emotion === 'No face detected') {
+        toast.error('No face detected. Please try again.');
+        return;
+      }
+      // Check if today's attendance is already marked for this student
+      try {
+        const checkRes = await fetch(`http://localhost:3000/api/auth/attendance/check?studentId=${encodeURIComponent(roll)}`);
+        const checkData = await checkRes.json();
+        if (checkData && checkData.alreadyMarked) {
+          toast.error('Attendance already marked for today!');
+          return;
+        }
+      } catch (err) {
+        // If check fails, allow marking (fail open)
+      }
+      if (roll) {
+        try {
+          const attRes = await fetch('http://localhost:3000/api/auth/attendance/mark', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentId: roll, status: 'Present', mood: data.emotion }),
+          });
+          const attData = await attRes.json();
+          if (attData.success) {
+            toast.success('Attendance marked successfully!');
+            // Reset form fields after successful attendance
+            setRoll('');
+            setPhoto(null);
+            setPrediction('');
+            setSubmitted(false);
+            setShowCamera(false);
+          } else {
+            toast.error(attData.message || 'Failed to mark attendance');
+          }
+        } catch (err) {
+          toast.error('Error marking attendance');
+        }
+      }
     } catch (error) {
       setPrediction('Error connecting to backend');
     }
@@ -138,9 +178,6 @@ const CheckinCard = () => {
       )}
       {prediction && (
         <div className="text-blue-600 font-semibold mt-2">Predicted Emotion: <strong>{prediction}</strong></div>
-      )}
-      {submitted && !prediction && (
-        <div className="text-green-600 font-semibold mt-2">Photo submitted! (Backend integration coming soon)</div>
       )}
     </form>
   );
