@@ -1,10 +1,11 @@
 import StudentCheckin from './pages/StudentCheckin';
-import StudentDetails from './pages/StudentDetails';
+import StudentReport from './pages/StudentReport';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
+import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
-  return <StudentCheckin />;
+  return <StudentDashboard />;
 }
 
 export default App;
