@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Navbar from '../components/Navbar';
-import '../components_css/TeacherDashboard.css';
 import TeacherHeader from '../components/teacher-dashboard/TeacherHeader';
 import ClassSummaryCards from '../components/teacher-dashboard/ClassSummaryCards';
 import StudentAttendanceTable from '../components/teacher-dashboard/StudentAttendanceTable';
 import MoodDeviationsTable from '../components/teacher-dashboard/MoodDeviationsTable';
 import { useNavigate } from 'react-router-dom';
+import '../components_css/TeacherDashboard.css';
 
 function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAttendanceData }) {
   const [loading, setLoading] = useState(false);

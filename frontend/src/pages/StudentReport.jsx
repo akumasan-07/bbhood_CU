@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import '../components_css/TeacherDashboard.css';
 import StudentHeader from '../components/student-details/StudentHeader';
 import AttendanceHistoryTable from '../components/student-details/AttendanceHistoryTable';
 import MoodTrendCard from '../components/student-details/MoodTrendCard';
 import FlaggedInstancesTable from '../components/student-details/FlaggedInstancesTable';
 import InterventionsCard from '../components/student-details/InterventionsCard';
+import '../components_css/TeacherDashboard.css';
 
 const flagged = [
   { date: '2024-07-15', desc: 'Student appeared distressed during class' },

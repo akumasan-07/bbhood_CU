@@ -1,6 +1,6 @@
 import React from "react";
-import '../components_css/TeacherDashboard.css';
 import Navbar from '../components/Navbar';
+import '../components_css/TeacherDashboard.css';
 
 const StudentDashboard = ({ student }) => {
   // Get attendance for last 30 days

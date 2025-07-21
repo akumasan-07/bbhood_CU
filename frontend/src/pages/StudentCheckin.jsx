@@ -1,7 +1,7 @@
 import React from 'react';
-import '../components_css/TeacherDashboard.css';
 import Navbar from '../components/Navbar';
 import CheckinCard from '../components/student-checkin/CheckinCard';
+import '../components_css/TeacherDashboard.css';
 
 const StudentCheckin = () => (
   <div className="attendance-checkin-bg">
