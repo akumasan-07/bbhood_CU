@@ -6,7 +6,6 @@ const CheckinCard = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [prediction, setPrediction] = useState('');
-  const [error, setError] = useState('');
   const videoRef = useRef();
   const canvasRef = useRef();
   let stream = null;
@@ -49,7 +48,6 @@ const CheckinCard = () => {
     e.preventDefault();
     setSubmitted(true);
     setPrediction('');
-    setError('');
     if (!photo) return;
     // Send photo to backend for prediction
     try {
@@ -64,23 +62,8 @@ const CheckinCard = () => {
       });
       const data = await response.json();
       setPrediction(data.emotion);
-      // Send mood to backend
-      const moodRes = await fetch('http://localhost:5000/api/student/mood', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: roll, mood: data.emotion })
-      });
-      const moodData = await moodRes.json();
-      if (!moodRes.ok) {
-        if (moodRes.status === 404) {
-          setError('Student not found. Please check the roll number.');
-        } else {
-          setError(moodData.message || 'Error saving mood.');
-        }
-      }
     } catch (error) {
       setPrediction('Error connecting to backend');
-      setError('Error connecting to backend');
     }
   };
 
@@ -158,9 +141,6 @@ const CheckinCard = () => {
       )}
       {submitted && !prediction && (
         <div className="text-green-600 font-semibold mt-2">Photo submitted! (Backend integration coming soon)</div>
-      )}
-      {error && (
-        <div className="text-red-600 font-semibold mt-2">{error}</div>
       )}
     </form>
   );

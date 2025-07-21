@@ -27,7 +27,6 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
 
   const handleMark = async (studentId, status) => {
     let actualStatus = status;
-    // Remove after-12-PM logic: always allow 'Late'
     try {
       const res = await fetch('http://localhost:3000/api/auth/attendance/mark', {
         method: 'POST',
@@ -50,12 +49,27 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
               }
             : row
         ));
+        // Store last mark time for this student
+        localStorage.setItem(`lastAttendanceMark_${studentId}`, new Date().toISOString());
       } else {
         toast.error(data.message || 'Failed to mark attendance');
       }
     } catch (err) {
       toast.error('Error marking attendance');
     }
+  };
+
+  // Helper to check if buttons should be disabled for a student
+  const isAttendanceDisabled = (studentId) => {
+    const lastMark = localStorage.getItem(`lastAttendanceMark_${studentId}`);
+    if (!lastMark) return false;
+    const lastDate = new Date(lastMark);
+    const now = new Date();
+    // Next allowed time is 7am the day after last mark
+    const nextAllowed = new Date(lastDate);
+    nextAllowed.setDate(lastDate.getDate() + 1);
+    nextAllowed.setHours(7, 0, 0, 0);
+    return now < nextAllowed;
   };
 
   const filteredData = statusFilter
@@ -118,9 +132,9 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
                       : '0/0'}
                   </td>
                   <td>
-                    <button style={{ marginRight: 8, background: '#059669', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleMark(row.studentID, 'Present'); }}>Present</button>
-                    <button style={{ marginRight: 8, background: '#b45309', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleMark(row.studentID, 'Late'); }}>Late</button>
-                    <button style={{ background: '#e53935', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }} onClick={e => { e.stopPropagation(); handleMark(row.studentID, 'Absent'); }}>Absent</button>
+                    <button style={{ marginRight: 8, background: '#059669', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row.studentID) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row.studentID) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row.studentID)) handleMark(row.studentID, 'Present'); }} disabled={isAttendanceDisabled(row.studentID)}>Present</button>
+                    <button style={{ marginRight: 8, background: '#b45309', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row.studentID) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row.studentID) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row.studentID)) handleMark(row.studentID, 'Late'); }} disabled={isAttendanceDisabled(row.studentID)}>Late</button>
+                    <button style={{ background: '#e53935', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row.studentID) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row.studentID) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row.studentID)) handleMark(row.studentID, 'Absent'); }} disabled={isAttendanceDisabled(row.studentID)}>Absent</button>
                   </td>
                 </tr>
               ))}

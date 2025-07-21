@@ -45,10 +45,6 @@ const studentSchema = new mongoose.Schema({
       type: Number,
       default: 0
     },
-    mood: {
-      type: String,
-      default: null
-    },
 },{timestamps:true});
 
 const Student = mongoose.model("Student", studentSchema);

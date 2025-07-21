@@ -4,12 +4,11 @@ import TeacherSignup from './components/TeacherSignup';
 import TeacherLogin from './components/TeacherLogin';
 import StudentSignup from './components/StudentSignup';
 import StudentLogin from './components/StudentLogin';
-// import TeacherDashboard from './components/TeacherDashboard';
-import StudentDashboard from './components/StudentDashboard';
+import StudentDashboard from './pages/StudentDashboard';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import StudentCheckin from './pages/StudentCheckin';
-import StudentDetails from './pages/StudentDetails';
+import StudentReport from './pages/StudentReport';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import CounselorSignup from './components/CounselorSignup';
@@ -56,9 +55,9 @@ function App() {
   if (loading) return <div style={{textAlign:'center',marginTop:'20vh',fontSize:'2rem'}}>Loading...</div>;
 
   // Helper for teacher viewing student details
-  function StudentDetailsForTeacher() {
+  function StudentReportForTeacher() {
     const { studentId } = useParams();
-    return <StudentDetails studentId={studentId} setTeacher={setTeacher} />;
+    return <StudentReport studentId={studentId} setTeacher={setTeacher} />;
   }
 
   // Remove StudentDetailsForCounselor helper
@@ -74,15 +73,15 @@ function App() {
           <Route path="/teacher/login" element={<RouteRenderer role="teacher" mode="login" FormComponent={TeacherLogin} setTeacher={setTeacher} setTeacherStudents={setTeacherStudents} setAttendanceData={setAttendanceData} />} />
           <Route path="/student/signup" element={<RouteRenderer role="student" mode="signup" FormComponent={StudentSignup} setStudent={setStudent} />} />
           <Route path="/student/login" element={<RouteRenderer role="student" mode="login" FormComponent={StudentLogin} setStudent={setStudent} />} />
+          <Route path="/student/dashboard" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDashboard student={student} setStudent={setStudent} />} />} />
           <Route path="/counselor/signup" element={<RouteRenderer role="counselor" mode="signup" FormComponent={CounselorSignup} setCounselor={setCounselor} />} />
           <Route path="/counselor/login" element={<RouteRenderer role="counselor" mode="login" FormComponent={CounselorLogin} setCounselor={setCounselor} />} />
           <Route path="/counselor/dashboard" element={<ProtectedRoute user={counselor} redirectTo="/counselor/login" element={<AdminDashboard />} />} />
           <Route path="/teacher/dashboard" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<TeacherDashboard teacher={teacher} setTeacher={setTeacher} students={teacherStudents} attendanceData={attendanceData} setAttendanceData={setAttendanceData} />} />} />
           <Route path="/teacher/attendance" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<StudentCheckin />} />} />
-          <Route path="/student/dashboard" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDashboard student={student} setStudent={setStudent} />} />} />
-          <Route path="/student/details" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentDetails />} />} />
-          <Route path="/teacher/student/:studentId" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<StudentDetailsForTeacher />} />} />
-          <Route path="/counselor/student/:studentId" element={<ProtectedRoute user={counselor} redirectTo="/counselor/login" element={<StudentDetails currentRole="counselor" />} />} />
+          <Route path="/student/details" element={<ProtectedRoute user={student} redirectTo="/student/login" element={<StudentReport />} />} />
+          <Route path="/teacher/student/:studentId" element={<ProtectedRoute user={teacher} redirectTo="/teacher/login" element={<StudentReportForTeacher />} />} />
+          <Route path="/counselor/student/:studentId" element={<ProtectedRoute user={counselor} redirectTo="/counselor/login" element={<StudentReport currentRole="counselor" />} />} />
         </Routes>
       </Router>
     </>

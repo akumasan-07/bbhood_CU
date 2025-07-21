@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../components_css/Navbar.module.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, setTeacher, setStudent }) => {
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const avatarRef = useRef(null);
@@ -73,7 +74,7 @@ const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, se
       </div>
       <div className={styles.rightSection}>
         {showLinks && <>
-          {/* Only show Dashboard for counselor, all links for others */}
+          {/* Only show Dashboard for counselor, all links for others. For student dashboard, hide Attendance and Reports. */}
           <a
             className={styles.link + ' ' + (active === 'Dashboard' ? styles.active : '')}
             href="#"
@@ -81,9 +82,10 @@ const Navbar = ({ active = 'Attendance', user, showLinks = true, currentRole, se
               e.preventDefault();
               if (currentRole === 'teacher') navigate('/teacher/dashboard');
               else if (currentRole === 'counselor') navigate('/counselor/dashboard');
+              else if (currentRole === 'student') navigate('/student/dashboard');
             }}
           >Dashboard</a>
-          {currentRole !== 'counselor' && <>
+          {currentRole !== 'counselor' && !(currentRole === 'student' && location.pathname === '/student/dashboard') && <>
             <a
               className={styles.link + ' ' + (active === 'Attendance' ? styles.active : '')}
               href="#"

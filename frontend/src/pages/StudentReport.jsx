@@ -25,8 +25,7 @@ const interventions = [
   '2024-07-16',
   '2024-07-23',
 ];
-
-const StudentDetails = ({ setTeacher, studentId: propStudentId, students }) => {
+const StudentReport = ({ setTeacher, studentId: propStudentId, students }) => {
   const params = useParams();
   const studentId = propStudentId || params.studentId;
   // Try to get the student name from the students prop if available
@@ -64,4 +63,4 @@ const StudentDetails = ({ setTeacher, studentId: propStudentId, students }) => {
   );
 };
 
-export default StudentDetails; 
+export default StudentReport; 

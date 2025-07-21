@@ -367,16 +367,16 @@ html, body {
   background: rgba(255,255,255,0.98);
   border-radius: 32px;
   box-shadow: 0 12px 48px 0 rgba(124,25,229,0.13), 0 1.5px 8px 0 rgba(0,0,0,0.04);
-  padding: 56px 40px 40px 40px;
+  padding: 36px 24px 24px 24px;
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 20px;
   box-sizing: border-box;
   border: 1.5px solid #ede7f3;
   position: relative;
   z-index: 1;
-  margin-bottom: 48px;
-  margin-top: 32px;
+  margin-bottom: 24px;
+  margin-top: 16px;
 }
 
 .sd-header {
@@ -422,13 +422,13 @@ html, body {
 .sd-section-row {
   display: flex;
   flex-direction: row;
-  gap: 40px;
+  gap: 16px;
   margin-bottom: 0;
 }
 .sd-section-row:not(:last-child) {
   border-bottom: 2px solid #ede7f3;
-  padding-bottom: 40px;
-  margin-bottom: 40px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
 }
 .sd-section-col {
   flex: 1;

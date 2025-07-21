@@ -14,32 +14,54 @@ const moodColor = mood => {
   return '';
 };
 
-const AttendanceHistoryTable = ({ attendance }) => (
-  <div className="sd-card">
-    <div className="font-bold text-lg mb-4">Attendance History</div>
-    <div style={{overflowX: 'auto', maxHeight: 320}}>
+const AttendanceHistoryTable = ({ attendance }) => {
+  // If attendance is not an array, fallback to empty
+  const records = Array.isArray(attendance) ? attendance : [];
+  return (
+    <div className="sd-card">
+      <h3 className="summary-card-title">Attendance History</h3>
       <table className="sd-table">
         <thead>
           <tr>
-            <th>DATE</th>
-            <th>TIME</th>
-            <th>STATUS</th>
-            <th>MOOD</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Mood</th>
           </tr>
         </thead>
         <tbody>
-          {attendance.map((row, i) => (
-            <tr key={i}>
-              <td>{row.date}</td>
-              <td>{row.time}</td>
-              <td>{statusBadge(row.status)}</td>
-              <td className={moodColor(row.mood)}>{row.mood}</td>
-            </tr>
-          ))}
+          {records.length === 0 ? (
+            <tr><td colSpan={4}>No attendance records found.</td></tr>
+          ) : records.map((row, idx) => {
+            // Format date and time
+            let date = '--', time = '--', status = '--';
+            if (row.date) {
+              const d = new Date(row.date);
+              if (!isNaN(d)) {
+                date = d.toISOString().slice(0, 10);
+                time = row.time || d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+              }
+            }
+            if (row.status) status = row.status;
+            return (
+              <tr key={idx}>
+                <td>{date}</td>
+                <td>{time}</td>
+                <td>
+                  <span className={
+                    status === 'Present' ? 'sd-status-present' :
+                    status === 'Late' ? 'sd-status-late' :
+                    status === 'Absent' ? 'sd-status-absent' : ''
+                  }>{status}</span>
+                </td>
+                <td>-</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
-  </div>
-);
+  );
+};
 
 export default AttendanceHistoryTable; 

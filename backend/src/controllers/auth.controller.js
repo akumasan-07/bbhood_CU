@@ -85,32 +85,32 @@ export const studentSignup = async (req,res)=>{
     const {username,studentID,phone,password,email,teacherID} = req.body;
     try {
         if(!username || !phone || !password || !email || !teacherID || !studentID){
-            return res.status(400).json({success:false,message:"All fields are required"});
+            return res.status(400).json({success:false,message:"All fields are required: username, studentID, phone, password, email, teacherID"});
         }
-        if(phone.length!=10){
-            return res.status(400).json({success:false,message:"mobile number should be 10 character long"});
+        if(typeof phone !== 'string' || phone.length!=10){
+            return res.status(400).json({success:false,message:"mobile number should be 10 digits as a string"});
         }
         if(password.length<6){
-            return res.status(400).json({success:false,message:"password must be 6 character long"});
+            return res.status(400).json({success:false,message:"password must be at least 6 characters long"});
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({ success: false, message: "Invalid email format" });
         }
-
-        const existing = await Student.findOne({$or: [{ email }, { phone }] });
+        // Check for existing student by email, phone, or studentID
+        const existing = await Student.findOne({$or: [{ email }, { phone }, { studentID }] });
         if(existing){
-            return res.status(400).json({success:false,message:"student already exists"});
+            return res.status(400).json({success:false,message:"student already exists (email, phone, or studentID)"});
         }
         const salt = await bcrypt.genSalt(10);
         const hashpassword = await bcrypt.hash(password,salt);
-
+        // Find teacher by teachID
         const teacher = await Admin.findOne({teachID:teacherID});
         if (!teacher) {
-            return res.status(404).json({ success: false, message: "Teacher not found" });
+            return res.status(404).json({ success: false, message: "Teacher not found with the provided teacherID" });
         }
-
-        const student = await Student.create({
+        // Create student
+        const student = new Student({
             username,
             phone,
             email,
@@ -118,16 +118,16 @@ export const studentSignup = async (req,res)=>{
             password:hashpassword,
             teacherID:teacher._id,
             classSection: teacher.classSection
-        })
+        });
+        await student.save();
         await Admin.findByIdAndUpdate(
             teacher._id,
             { $push: { students: student._id } }
         );
-        await student.save();
         return res.status(201).json({ success: true, message: "Student registered successfully",student});
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: "Internal server error!" });
+        console.log('Student signup error:', error);
+        return res.status(500).json({ success: false, message: "Internal server error!", error: error.message });
     }
 }
 export const studentLogin = async (req,res)=>{
