@@ -1,14 +1,61 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Header from '../components/student-checkin/Header';
 
 const StudentCheckin = () => {
-  const handlePhotoClick = () => {
-    console.log('Photo button clicked');
+  const [cameraOn, setCameraOn] = useState(false);
+  const [imageCaptured, setImageCaptured] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const handlePhotoClick = async () => {
+    setCameraOn(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleCapture = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL('image/png');
+      setImageCaptured(dataUrl);
+
+      // Stop the camera stream
+      const stream = video.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => track.stop());
+      video.srcObject = null;
+      setCameraOn(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted');
+    if (!imageCaptured) {
+      alert('Please capture a photo first.');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('image_base64', imageCaptured);
+    const thought = document.getElementById('thought-input').value;
+    if (thought && thought.trim()) {
+      formData.append('thought', thought);
+    }
+    await fetch('http://localhost:5000/analyze-sentiment', {
+      method: 'POST',
+      body: formData,
+    });
   };
 
   return (
@@ -41,6 +88,29 @@ const StudentCheckin = () => {
                   </span>
                   Click Photo
                 </button>
+
+                {cameraOn && (
+                  <div className="mt-4 space-y-4">
+                    <video ref={videoRef} className="w-full rounded-lg border border-gray-300" />
+                    <button
+                      type="button"
+                      onClick={handleCapture}
+                      className="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all"
+                    >
+                      Capture Image
+                    </button>
+                  </div>
+                )}
+
+                {imageCaptured && (
+                  <img
+                    src={imageCaptured}
+                    alt="Captured"
+                    className="mt-4 w-full rounded-lg border border-gray-300"
+                  />
+                )}
+
+                <canvas ref={canvasRef} className="hidden" />
               </div>
 
               <div>
