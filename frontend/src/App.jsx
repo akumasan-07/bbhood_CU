@@ -5,7 +5,7 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
-  return <StudentDashboard />;
+  return <StudentCheckin />;
 }
 
 export default App;
