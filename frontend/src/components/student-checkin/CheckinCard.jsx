@@ -7,6 +7,7 @@ const CheckinCard = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [prediction, setPrediction] = useState('');
+  const [thought, setThought] = useState(''); // <-- Add state for thought
   const videoRef = useRef();
   const canvasRef = useRef();
   let stream = null;
@@ -57,14 +58,22 @@ const CheckinCard = () => {
       const blob = await res.blob();
       const formData = new FormData();
       formData.append('file', blob, 'capture.png');
-      const response = await fetch('http://localhost:5000/predict', {
+      if (thought && thought.trim()) {
+        formData.append('thought', thought);
+      }
+      const response = await fetch('http://localhost:5000/analyze-sentiment', {
         method: 'POST',
         body: formData,
       });
       const data = await response.json();
-      setPrediction(data.emotion);
-      // After prediction, mark attendance as Present and store mood
-      if (data.emotion === 'No face detected') {
+      console.log('Sentiment analysis result:', data);
+      // Store both mood and score in prediction state as an object
+      setPrediction({
+        mood: data.final_class || data.emotion,
+        score: data.final_score
+      });
+      // After prediction, mark attendance as Present and store mood and score
+      if ((data.final_class || data.emotion) === 'No face detected') {
         toast.error('No face detected. Please try again.');
         return;
       }
@@ -81,10 +90,21 @@ const CheckinCard = () => {
       }
       if (roll) {
         try {
+          console.log('Sending to backend:', {
+            studentId: roll,
+            status: 'Present',
+            mood: data.final_class || data.emotion,
+            moodScore: data.final_score || 0
+          });
           const attRes = await fetch('http://localhost:3000/api/auth/attendance/mark', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentId: roll, status: 'Present', mood: data.emotion }),
+            body: JSON.stringify({
+              studentId: roll,
+              status: 'Present',
+              mood: data.final_class || data.emotion,
+              moodScore: data.final_score || 0
+            }),
           });
           const attData = await attRes.json();
           if (attData.success) {
@@ -93,6 +113,7 @@ const CheckinCard = () => {
             setRoll('');
             setPhoto(null);
             setPrediction('');
+            setThought('');
             setSubmitted(false);
             setShowCamera(false);
           } else {
@@ -118,6 +139,13 @@ const CheckinCard = () => {
         value={roll}
         onChange={e => setRoll(e.target.value)}
         required
+      />
+      <input
+        type="text"
+        placeholder="Share a thought (optional)"
+        className="w-full border border-gray-200 rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-purple-200 text-lg"
+        value={thought}
+        onChange={e => setThought(e.target.value)}
       />
       {!photo && !showCamera && (
         <button
@@ -177,7 +205,12 @@ const CheckinCard = () => {
         </>
       )}
       {prediction && (
-        <div className="text-blue-600 font-semibold mt-2">Predicted Emotion: <strong>{prediction}</strong></div>
+        <div className="text-blue-600 font-semibold mt-2">
+          Predicted Emotion: <strong>{prediction.mood}</strong>
+          {typeof prediction.score !== 'undefined' && (
+            <span style={{ marginLeft: 12 }}>Score: <strong>{prediction.score}</strong></span>
+          )}
+        </div>
       )}
     </form>
   );

@@ -12,18 +12,13 @@ const statusOptions = [
 const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
   console.log('Attendance data:', attendanceData);
   const [statusFilter, setStatusFilter] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [thought, setThought] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const navigate = useNavigate();
 
-  // Track last attendance date in localStorage
-  useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    const lastAttendanceDate = localStorage.getItem('lastAttendanceDate');
-    if (lastAttendanceDate !== today) {
-      // New day: reset all statuses to dash
-      setAttendanceData(prev => prev.map(row => ({ ...row, status: '–', statusColor: '', date: today })));
-      localStorage.setItem('lastAttendanceDate', today);
-    }
-  }, [setAttendanceData]);
+  // Remove the useEffect that overwrites attendanceData
 
   // Fetch latest attendance data from backend
   const fetchAttendanceData = async () => {
@@ -37,47 +32,48 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
   };
 
   const handleMark = async (studentId, status) => {
-    let actualStatus = status;
-    // Prevent duplicate attendance marking
-    const row = attendanceData.find(r => r.studentID === studentId);
-    const today = new Date().toISOString().slice(0, 10);
-    if (row && Array.isArray(row.attendance) && row.attendance.some(record => new Date(record.date).toISOString().slice(0, 10) === today)) {
-      toast.error('Attendance already marked for today!');
-      return;
-    }
+    setIsSubmitting(true);
     try {
+      // 1. Call Python API for sentiment
+      const formData = new FormData();
+      formData.append('image_base64', photo);
+      if (thought) formData.append('thought', thought);
+      const sentimentRes = await fetch('http://localhost:5000/analyze-sentiment', {
+        method: 'POST',
+        body: formData,
+      });
+      const sentimentData = await sentimentRes.json();
+
+      // 2. Send result to Node backend
       const res = await fetch('http://localhost:3000/api/auth/attendance/mark', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, status: actualStatus }),
+        body: JSON.stringify({
+          studentId,
+          status,
+          mood: sentimentData.final_class,
+          moodScore: sentimentData.final_score
+        }),
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`${actualStatus} marked for student!`);
-        // Immediately update the status in the table for instant feedback
+        toast.success(`${status} marked for student!`);
+        // Optionally update UI
         setAttendanceData(prev => prev.map(row =>
           row.studentID === studentId
-            ? {
-                ...row,
-                status: actualStatus,
-                // Optionally update attendance array for disabling logic
-                attendance: Array.isArray(row.attendance)
-                  ? [...row.attendance, {
-                      date: new Date(),
-                      status: actualStatus
-                    }]
-                  : [{ date: new Date(), status: actualStatus }]
-              }
+            ? { ...row, status, mood: sentimentData.final_class, moodScore: sentimentData.final_score }
             : row
         ));
-        // Optionally, also fetch latest data from backend for full sync
-        await fetchAttendanceData();
       } else {
         toast.error(data.message || 'Failed to mark attendance');
       }
     } catch (err) {
       toast.error('Error marking attendance');
     }
+    setIsSubmitting(false);
+    setPhoto(null);
+    setThought('');
+    setSelectedStudent(null);
   };
 
   // Helper to check if buttons should be disabled for a student (based on backend attendance array)
@@ -153,9 +149,15 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
                   <td>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                       <div>
+                        {/*
                         <button style={{ marginRight: 8, background: '#059669', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row)) handleMark(row.studentID, 'Present'); }} disabled={isAttendanceDisabled(row)} title={isAttendanceDisabled(row) ? 'Attendance already marked for today' : ''}>Present</button>
+                        */}
+                        {/*
                         <button style={{ marginRight: 8, background: '#b45309', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row)) handleMark(row.studentID, 'Late'); }} disabled={isAttendanceDisabled(row)} title={isAttendanceDisabled(row) ? 'Attendance already marked for today' : ''}>Late</button>
+                        */}
+                        {/*
                         <button style={{ background: '#e53935', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: isAttendanceDisabled(row) ? 'not-allowed' : 'pointer', opacity: isAttendanceDisabled(row) ? 0.5 : 1 }} onClick={e => { e.stopPropagation(); if (!isAttendanceDisabled(row)) handleMark(row.studentID, 'Absent'); }} disabled={isAttendanceDisabled(row)} title={isAttendanceDisabled(row) ? 'Attendance already marked for today' : ''}>Absent</button>
+                        */}
                       </div>
                       {isAttendanceDisabled(row) && (
                         <span style={{ color: '#b45309', fontSize: '0.95em', marginTop: 2 }}>Attendance already marked for today</span>

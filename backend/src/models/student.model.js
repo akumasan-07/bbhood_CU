@@ -36,7 +36,8 @@ const studentSchema = new mongoose.Schema({
     attendance: [{
         date: { type: Date },
         status: { type: String, enum: ["present", "absent", "late"] },
-        mood: { type: String, default: '-' }
+        mood: { type: String, default: '-' },
+        moodScore: { type: Number, default: 0 }
     }],
     totalAttendance: {
       type: Number,

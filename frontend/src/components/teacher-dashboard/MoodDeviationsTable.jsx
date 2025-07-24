@@ -18,21 +18,40 @@ const MoodDeviationsTable = ({ moodDeviations }) => {
             </tr>
           </thead>
           <tbody>
-            {moodDeviations.map((row, idx) => (
-              <tr
-                key={idx}
-                style={{ cursor: 'pointer', transition: 'background 0.2s' }}
-                onClick={() => navigate('/student/details')}
-                onMouseOver={e => e.currentTarget.style.background = '#f5f3fa'}
-                onMouseOut={e => e.currentTarget.style.background = ''}
-              >
-                <td style={{ fontWeight: 600, color: '#140e1b' }}>{row.name}</td>
-                <td style={{ color: row.changeColor === 'red' ? '#e53935' : row.changeColor === 'yellow' ? '#b45309' : row.changeColor === 'green' ? '#059669' : '#140e1b', fontWeight: 600 }}>{row.mood}</td>
-                <td style={{ color: row.changeColor === 'red' ? '#e53935' : row.changeColor === 'green' ? '#059669' : '#140e1b', fontWeight: 600 }}>{row.change}</td>
-                <td style={{ color: '#888' }}>{row.lastUpdated}</td>
-                <td style={{ textAlign: 'right', color: '#7c19e5', fontWeight: 600, textDecoration: 'underline' }}>View Details</td>
-              </tr>
-            ))}
+            {moodDeviations.map((row, idx) => {
+              console.log('Student row:', row);
+              // Find latest attendance record
+              let latest = null;
+              if (Array.isArray(row.attendance) && row.attendance.length > 0) {
+                latest = row.attendance.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+              }
+              // Calculate average mood score
+              let avgMoodScore = 0;
+              if (Array.isArray(row.attendance) && row.attendance.length > 0) {
+                const scores = row.attendance.map(a => typeof a.moodScore === 'number' ? a.moodScore : 0);
+                if (scores.length > 0) {
+                  avgMoodScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+                }
+              }
+              const currentMoodScore = latest && typeof latest.moodScore === 'number' ? latest.moodScore : 'N/A';
+              const changeFromAvg = latest && typeof latest.moodScore === 'number' ? (latest.moodScore - avgMoodScore).toFixed(2) : 'N/A';
+              const lastUpdated = latest && latest.date ? new Date(latest.date).toLocaleString() : 'N/A';
+              return (
+                <tr
+                  key={idx}
+                  style={{ cursor: 'pointer', transition: 'background 0.2s' }}
+                  onClick={() => navigate(`/teacher/student/${row.studentID}`)}
+                  onMouseOver={e => e.currentTarget.style.background = '#f5f3fa'}
+                  onMouseOut={e => e.currentTarget.style.background = ''}
+                >
+                  <td style={{ fontWeight: 600, color: '#140e1b' }}>{row.name}</td>
+                  <td>{currentMoodScore}</td>
+                  <td>{changeFromAvg}</td>
+                  <td>{lastUpdated}</td>
+                  <td style={{ textAlign: 'right', color: '#7c19e5', fontWeight: 600, textDecoration: 'underline' }}>View Details</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

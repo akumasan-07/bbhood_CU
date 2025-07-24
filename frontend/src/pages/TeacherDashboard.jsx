@@ -11,7 +11,19 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Remove useEffect that fetches students
+  useEffect(() => {
+    // Fetch the latest students from the backend
+    const fetchAttendanceData = async () => {
+      try {
+        const res = await fetch('/api/teacher/students');
+        const data = await res.json();
+        if (data.students) setAttendanceData(data.students);
+      } catch (err) {
+        // Optionally handle error
+      }
+    };
+    fetchAttendanceData();
+  }, [setAttendanceData]);
 
   console.log('TeacherDashboard students:', students);
 
@@ -20,14 +32,14 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
 
   // Update attendanceData in StudentAttendanceTable and pass to ClassSummaryCards
 
-  // Example flagged students array (replace with real data as needed)
-  // For demo: consider students with status 'Late' or 'Absent' today as flagged
+  // Show only students with at least one attendance record and latest moodScore below threshold
+  const MOOD_DEVIATION_THRESHOLD = -1;
   const flaggedStudents = attendanceData.filter(s => {
-    if (!Array.isArray(s.attendance)) return false;
-    return s.attendance.some(a => {
-      const d = a.date ? new Date(a.date).toISOString().slice(0, 10) : '';
-      return d === today && (a.status === 'Late' || a.status === 'Absent');
-    });
+    if (!Array.isArray(s.attendance) || s.attendance.length === 0) return false;
+    // Find the latest attendance record
+    const latest = s.attendance.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+    const latestScore = Number(latest.moodScore);
+    return !isNaN(latestScore) && latestScore < MOOD_DEVIATION_THRESHOLD;
   });
   const flaggedCount = flaggedStudents.length;
 

@@ -255,16 +255,8 @@ export const getTeacherStudents = async (req, res) => {
         if (decoded.role !== 'teacher') return res.status(403).json({ success: false, message: 'Forbidden' });
         // Get all students with teacherID = decoded.id
         const students = await Student.find({ teacherID: decoded.id });
-        // Map to attendance table format
-        const attendanceData = students.map(s => ({
-            name: s.username,
-            studentID: s.studentID,
-            date: '2024-07-26',
-            status: 'Present',
-            percent: '90%',
-            statusColor: 'green',
-        }));
-        return res.status(200).json({ success: true, students: attendanceData });
+        // Return full student objects including attendance array
+        return res.status(200).json({ success: true, students });
     } catch (err) {
         return res.status(401).json({ success: false, message: 'Invalid or expired token' });
     }
