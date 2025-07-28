@@ -2,13 +2,17 @@ import React, { useRef, useState } from 'react';
 import Header from '../components/student-checkin/Header';
 
 const StudentCheckin = () => {
-  const [cameraOn, setCameraOn] = useState(false);
-  const [imageCaptured, setImageCaptured] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [imageCaptured, setImageCaptured] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handlePhotoClick = async () => {
-    setCameraOn(true);
+    setErrorMessage('');
+    setCameraOpen(true);
+    setImageCaptured(null);
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (videoRef.current) {
@@ -21,31 +25,41 @@ const StudentCheckin = () => {
   };
 
   const handleCapture = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (video && canvas) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0);
-      const dataUrl = canvas.toDataURL('image/png');
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      canvasRef.current.width = videoRef.current.videoWidth;
+      canvasRef.current.height = videoRef.current.videoHeight;
+      context.drawImage(videoRef.current, 0, 0);
+      const dataUrl = canvasRef.current.toDataURL('image/png');
       setImageCaptured(dataUrl);
-
-      // Stop the camera stream
-      const stream = video.srcObject;
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
-      video.srcObject = null;
-      setCameraOn(false);
+      setErrorMessage('');
+      stopCamera();
+      setCameraOpen(false);
     }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const handleRetake = () => {
+    setImageCaptured(null);
+    handlePhotoClick();
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted');
-    if (imageCaptured) {
-      console.log('Captured image data:', imageCaptured);
+    if (!imageCaptured) {
+      setErrorMessage('Please capture a photo before submitting.');
+      return;
     }
+
+    setErrorMessage('');
+    console.log('Form submitted');
+    console.log('Captured image data:', imageCaptured);
   };
 
   return (
@@ -56,7 +70,9 @@ const StudentCheckin = () => {
         <div className="w-full max-w-lg space-y-8 p-10 bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--text-primary)]">Attendance Check-in</h2>
-            <p className="mt-2 text-center text-sm text-[var(--text-secondary)]">Click your photo for attendance. You can also share a thought.</p>
+            <p className="mt-2 text-center text-sm text-[var(--text-secondary)]">
+              Click your photo for attendance. You can also share a thought.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -78,31 +94,37 @@ const StudentCheckin = () => {
                   </span>
                   Click Photo
                 </button>
-
-                {cameraOn && (
-                  <div className="mt-4 space-y-4">
-                    <video ref={videoRef} className="w-full rounded-lg border border-gray-300" />
-                    <button
-                      type="button"
-                      onClick={handleCapture}
-                      className="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all"
-                    >
-                      Capture Image
-                    </button>
-                  </div>
-                )}
-
-                {imageCaptured && (
-                  <img
-                    src={imageCaptured}
-                    alt="Captured"
-                    className="mt-4 w-full rounded-lg border border-gray-300"
-                  />
-                )}
-
-                <canvas ref={canvasRef} className="hidden" />
               </div>
 
+              {/* Camera Panel */}
+              {cameraOpen && (
+                <div className="mt-4 space-y-4 text-center">
+                  <video ref={videoRef} className="w-full rounded-xl border border-gray-300" autoPlay playsInline />
+                  <button
+                    type="button"
+                    onClick={handleCapture}
+                    className="py-2 px-6 text-white bg-green-600 hover:bg-green-700 rounded-full font-semibold shadow"
+                  >
+                    Capture
+                  </button>
+                </div>
+              )}
+
+              {/* Captured Image */}
+              {imageCaptured && (
+                <div className="mt-4 space-y-4 text-center">
+                  <img src={imageCaptured} alt="Captured" className="rounded-xl mx-auto max-h-80 border border-gray-300" />
+                  <button
+                    type="button"
+                    onClick={handleRetake}
+                    className="py-2 px-6 text-white bg-yellow-600 hover:bg-yellow-700 rounded-full font-semibold shadow"
+                  >
+                    Retake Photo
+                  </button>
+                </div>
+              )}
+
+              {/* Thought Input */}
               <div>
                 <label htmlFor="thought-input" className="block text-sm font-medium text-[var(--text-primary)]">
                   Share a thought (Optional)
@@ -116,10 +138,18 @@ const StudentCheckin = () => {
                     className="appearance-none block w-full px-4 py-3 border border-[var(--border-color)] placeholder-[var(--text-secondary)] text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent sm:text-sm transition-all duration-300"
                   ></textarea>
                 </div>
-                <p className="mt-2 text-xs text-[var(--text-secondary)]">Your thoughts help us understand the campus sentiment.</p>
+                <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                  Your thoughts help us understand the campus sentiment.
+                </p>
               </div>
             </div>
 
+            {/* Error Message */}
+            {errorMessage && (
+              <p className="text-red-600 text-sm font-medium text-center">{errorMessage}</p>
+            )}
+
+            {/* Submit */}
             <div>
               <button
                 type="submit"
@@ -131,6 +161,7 @@ const StudentCheckin = () => {
           </form>
         </div>
       </main>
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 };
