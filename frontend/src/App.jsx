@@ -1,4 +1,4 @@
-import StudentCheckin from './pages/StudentCheckin';
+import StudentCheckin from './pages/Student_Login';
 import StudentReport from './pages/StudentReport';
 import AdminDashboard from './pages/AdminDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
