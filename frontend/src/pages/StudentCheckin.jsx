@@ -1,14 +1,65 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Header from '../components/student-checkin/Header';
 
 const StudentCheckin = () => {
-  const handlePhotoClick = () => {
-    console.log('Photo button clicked');
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [imageCaptured, setImageCaptured] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handlePhotoClick = async () => {
+    setErrorMessage('');
+    setCameraOpen(true);
+    setImageCaptured(null);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleCapture = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      canvasRef.current.width = videoRef.current.videoWidth;
+      canvasRef.current.height = videoRef.current.videoHeight;
+      context.drawImage(videoRef.current, 0, 0);
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      setImageCaptured(dataUrl);
+      setErrorMessage('');
+      stopCamera();
+      setCameraOpen(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const handleRetake = () => {
+    setImageCaptured(null);
+    handlePhotoClick();
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
+    if (!imageCaptured) {
+      setErrorMessage('Please capture a photo before submitting.');
+      return;
+    }
+
+    setErrorMessage('');
     console.log('Form submitted');
+    console.log('Captured image data:', imageCaptured);
   };
 
   return (
@@ -43,29 +94,6 @@ const StudentCheckin = () => {
                   </span>
                   Click Photo
                 </button>
-
-                {cameraOn && (
-                  <div className="mt-4 space-y-4">
-                    <video ref={videoRef} className="w-full rounded-lg border border-gray-300" />
-                    <button
-                      type="button"
-                      onClick={handleCapture}
-                      className="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all"
-                    >
-                      Capture Image
-                    </button>
-                  </div>
-                )}
-
-                {imageCaptured && (
-                  <img
-                    src={imageCaptured}
-                    alt="Captured"
-                    className="mt-4 w-full rounded-lg border border-gray-300"
-                  />
-                )}
-
-                <canvas ref={canvasRef} className="hidden" />
               </div>
 
               {/* Camera Panel */}
