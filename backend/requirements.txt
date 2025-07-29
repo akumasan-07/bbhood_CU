@@ -2,3 +2,6 @@ flask
 flask-cors
 tensorflow-cpu
 opencv-python 
+tensorflow
+opencv-python 
+scikit-learn

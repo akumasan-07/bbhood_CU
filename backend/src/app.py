@@ -12,7 +12,7 @@ from io import BytesIO
 indicies = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happy', 4: 'Neutral', 5: 'Sad', 6: 'Surprise'}
 
 app = Flask(__name__)
-CORS(app, resources={r"/": {"origins": ""}})
+CORS(app, origins=["http://localhost:5173"])
 
 # Load model and face cascade once
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -84,13 +84,17 @@ def calculate_final_sentiment(photo_sentiment, text_sentiment):
     photo_score = photo_map.get(photo_sentiment, 0)
     text_score = text_map.get(text_sentiment, 0)
     final_score = (photo_score * 0.4) + (text_score * 0.6)
-    final_score_rounded = round(final_score, 2)
+    # Normalize to 0-5 scale
+    min_score = -5
+    max_score = 2
+    normalized_score = (final_score - min_score) / (max_score - min_score) * 5
+    normalized_score_rounded = round(normalized_score, 2)
     combined_map = {**photo_map, **text_map}
     final_class = min(combined_map, key=lambda k: abs(combined_map[k] - final_score))
     return {
         "photo_sentiment": photo_sentiment,
         "text_sentiment": text_sentiment,
-        "final_score": final_score_rounded,
+        "final_score": normalized_score_rounded,
         "final_class": final_class
     }
 
