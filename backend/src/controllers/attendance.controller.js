@@ -1,7 +1,7 @@
 import Student from "../models/student.model.js";
 
 export const markAttendance = async (req, res) => {
-  const { studentId, status, mood } = req.body;
+  const { studentId, status, mood, moodScore } = req.body;
   try {
     const now = new Date();
     const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
@@ -18,7 +18,8 @@ export const markAttendance = async (req, res) => {
         date: now,
         status,
         time,
-        mood: mood || '-' // Store mood if provided, else '-'
+        mood: mood || '-', // Store mood if provided, else '-'
+        moodScore: typeof moodScore === 'number' ? moodScore : undefined // Store moodScore if provided
       }
     };
     const student = await Student.findOneAndUpdate(

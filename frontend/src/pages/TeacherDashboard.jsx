@@ -31,6 +31,67 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
   });
   const flaggedCount = flaggedStudents.length;
 
+  // Prepare mood deviations for today: students with today's avg mood score < 3.5
+  console.log('Calculating mood deviations for students:', attendanceData);
+  
+  const moodDeviations = attendanceData
+    .map(student => {
+      console.log('Checking student:', student.name, 'Total attendance:', student.totalAttendance, 'Attendance records:', student.attendance);
+      
+      if (!Array.isArray(student.attendance)) {
+        console.log('Student has no attendance array:', student.name);
+        return null;
+      }
+      
+      // Get today's attendance records with moodScore
+      const todayRecords = student.attendance.filter(a => {
+        const d = a.date ? new Date(a.date).toISOString().slice(0, 10) : '';
+        const hasMoodScore = typeof a.moodScore === 'number';
+        console.log('Record date:', d, 'Today:', today, 'Has mood score:', hasMoodScore, 'Mood score:', a.moodScore);
+        return d === today && hasMoodScore;
+      });
+      
+      console.log('Today records with mood for', student.name, ':', todayRecords);
+      
+      // Skip if no mood data for today
+      if (todayRecords.length === 0) {
+        console.log('No mood data for today for student:', student.name);
+        return null;
+      }
+      
+      // Calculate average mood score for today
+      const avgMoodScore = todayRecords.reduce((sum, a) => sum + a.moodScore, 0) / todayRecords.length;
+      console.log('Average mood score for', student.name, ':', avgMoodScore);
+      
+      // Only include students with mood score below 3.5
+      if (avgMoodScore >= 3.5) {
+        console.log('Student', student.name, 'has mood score >= 3.5, not adding to deviations');
+        return null;
+      }
+      
+      // Determine color based on mood score
+      let changeColor = 'red';
+      if (avgMoodScore >= 2.5) changeColor = 'yellow';
+      
+      // Format the time of the most recent record
+      const lastRecord = todayRecords.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      const lastUpdated = lastRecord ? new Date(lastRecord.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-';
+      
+      console.log('Adding student to mood deviations:', student.name, 'with score:', avgMoodScore);
+      
+      return {
+        name: student.name || student.username || student.studentID,
+        mood: avgMoodScore.toFixed(2),
+        change: avgMoodScore < 2.0 ? 'Needs urgent attention' : 'Below average',
+        lastUpdated: lastUpdated,
+        changeColor: changeColor,
+        studentID: student.studentID
+      };
+    })
+    .filter(Boolean);
+    
+  console.log('Final mood deviations list:', moodDeviations);
+
   return (
     <div className="tdb-root">
       <Navbar active="Dashboard" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
@@ -61,8 +122,8 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
               )}
             </section>
             <section>
-              <h2>Students with Notable Mood Deviations ({flaggedCount})</h2>
-              <MoodDeviationsTable moodDeviations={flaggedStudents} />
+              <h2>Students with Notable Mood Deviations ({moodDeviations.length})</h2>
+              <MoodDeviationsTable moodDeviations={moodDeviations} />
             </section>
           </div>
         </div>

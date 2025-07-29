@@ -16,7 +16,8 @@ CORS(app, origins=["http://localhost:5173"])
 
 # Load model and face cascade once
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-model_path = os.path.join('assets', 'model_new.h5')
+model_path = os.path.join(os.path.dirname(__file__), 'assets', 'model_new.h5')
+print('Loading model from:', model_path)
 model = tf.keras.models.load_model(model_path)
 
 def predict_emotion(image_bytes):

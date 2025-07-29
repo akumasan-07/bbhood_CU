@@ -124,16 +124,41 @@ function RouteRenderer({ FormComponent, role, mode, setTeacher, setStudent, setT
                 if (setTeacherStudents) setTeacherStudents(studentsArr || []);
                 if (setAttendanceData) {
                   const today = new Date().toISOString().slice(0, 10);
-                  setAttendanceData((studentsArr || []).map(s => ({
-                    name: s.username || s.name || s.studentID,
-                    studentID: s.studentID || s._id,
-                    date: today,
-                    status: 'Present',
-                    percent: s.totalClass > 0 ? `${Math.round((s.totalAttendance / s.totalClass) * 100)}%` : '0%',
-                    statusColor: 'green',
-                    totalAttendance: typeof s.totalAttendance === 'number' ? s.totalAttendance : 0,
-                    totalClass: typeof s.totalClass === 'number' ? s.totalClass : 0,
-                  })));
+                  // Create attendance data structure without automatically adding mock data
+                  const mockAttendanceData = (studentsArr || []).map(s => {
+                    // Use existing attendance data without adding mock entries for new students
+                    const mockAttendance = Array.isArray(s.attendance) ? s.attendance : [];
+                    
+                    // Only add mock data if this is a development environment and student has existing attendance
+                    // This ensures new students don't automatically get mood scores
+                    if (process.env.NODE_ENV === 'development' && 
+                        s.totalAttendance > 0 && 
+                        !mockAttendance.some(a => {
+                          const d = a.date ? new Date(a.date).toISOString().slice(0, 10) : '';
+                          return d === today;
+                        })) {
+                      mockAttendance.push({
+                        date: today,
+                        status: 'Present',
+                        mood: 'Happy',
+                        moodScore: Math.floor(Math.random() * 5) + 1 // Random score between 1-5
+                      });
+                    }
+                    
+                    return {
+                      name: s.username || s.name || s.studentID,
+                      studentID: s.studentID || s._id,
+                      date: today,
+                      status: 'Present',
+                      percent: s.totalClass > 0 ? `${Math.round((s.totalAttendance / s.totalClass) * 100)}%` : '0%',
+                      statusColor: 'green',
+                      totalAttendance: typeof s.totalAttendance === 'number' ? s.totalAttendance : 0,
+                      totalClass: typeof s.totalClass === 'number' ? s.totalClass : 0,
+                      attendance: mockAttendance,
+                    };
+                  });
+                  
+                  setAttendanceData(mockAttendanceData);
                 }
                 navigate('/teacher/dashboard');
               }

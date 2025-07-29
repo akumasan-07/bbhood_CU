@@ -60,13 +60,20 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
             ? {
                 ...row,
                 status: actualStatus,
-                // Optionally update attendance array for disabling logic
+                // Update attendance array with status and mood data
                 attendance: Array.isArray(row.attendance)
                   ? [...row.attendance, {
                       date: new Date(),
-                      status: actualStatus
+                      status: actualStatus,
+                      mood: 'Neutral', // Default mood
+                      moodScore: 3 // Default mood score (neutral)
                     }]
-                  : [{ date: new Date(), status: actualStatus }]
+                  : [{ 
+                      date: new Date(), 
+                      status: actualStatus,
+                      mood: 'Neutral',
+                      moodScore: 3
+                    }]
               }
             : row
         ));
@@ -172,4 +179,4 @@ const StudentAttendanceTable = ({ attendanceData, setAttendanceData }) => {
   );
 };
 
-export default StudentAttendanceTable; 
+export default StudentAttendanceTable;
