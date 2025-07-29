@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
+import '../../components_css/TeacherDashboard.css';
 
 const CheckinCard = () => {
   const [roll, setRoll] = useState('');
@@ -7,6 +8,7 @@ const CheckinCard = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [prediction, setPrediction] = useState('');
+  const [thought, setThought] = useState('');
   const videoRef = useRef();
   const canvasRef = useRef();
   let stream = null;
@@ -50,21 +52,28 @@ const CheckinCard = () => {
     setSubmitted(true);
     setPrediction('');
     if (!photo) return;
-    // Send photo to backend for prediction
     try {
       // Convert base64 to blob
       const res = await fetch(photo);
       const blob = await res.blob();
       const formData = new FormData();
       formData.append('file', blob, 'capture.png');
-      const response = await fetch('http://localhost:5000/predict', {
+      if (thought && thought.trim()) {
+        formData.append('thought', thought);
+      }
+      // Send to Flask backend for sentiment analysis
+      const response = await fetch('http://localhost:5000/analyze-sentiment', {
         method: 'POST',
         body: formData,
       });
       const data = await response.json();
-      setPrediction(data.emotion);
-      // After prediction, mark attendance as Present and store mood
-      if (data.emotion === 'No face detected') {
+      // Store both mood and score in prediction state as an object
+      setPrediction({
+        mood: data.final_class || data.emotion,
+        score: data.final_score
+      });
+      // After prediction, mark attendance as Present and store mood and score
+      if ((data.final_class || data.emotion) === 'No face detected') {
         toast.error('No face detected. Please try again.');
         return;
       }
@@ -84,7 +93,12 @@ const CheckinCard = () => {
           const attRes = await fetch('http://localhost:3000/api/auth/attendance/mark', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentId: roll, status: 'Present', mood: data.emotion }),
+            body: JSON.stringify({
+              studentId: roll,
+              status: 'Present',
+              mood: data.final_class || data.emotion,
+              moodScore: data.final_score || 0
+            }),
           });
           const attData = await attRes.json();
           if (attData.success) {
@@ -93,6 +107,7 @@ const CheckinCard = () => {
             setRoll('');
             setPhoto(null);
             setPrediction('');
+            setThought('');
             setSubmitted(false);
             setShowCamera(false);
           } else {
@@ -108,76 +123,109 @@ const CheckinCard = () => {
   };
 
   return (
-    <form className="bg-white rounded-2xl shadow-xl px-10 py-10 w-full max-w-md flex flex-col items-center" onSubmit={handleSubmit}>
-      <h1 className="text-3xl font-extrabold mb-2 text-center">Student Check-In</h1>
-      <p className="text-gray-500 mb-7 text-center">Please enter your roll number to proceed.</p>
-      <input
-        type="text"
-        placeholder="Enter your Roll Number"
-        className="w-full border border-gray-200 rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-purple-200 text-lg"
-        value={roll}
-        onChange={e => setRoll(e.target.value)}
-        required
-      />
-      {!photo && !showCamera && (
-        <button
-          type="button"
-          className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg py-3 rounded-full shadow-md transition mb-2"
-          onClick={handleCaptureClick}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <rect x="3" y="7" width="18" height="13" rx="3" stroke="currentColor" strokeWidth="2" />
-            <circle cx="12" cy="13.5" r="3" stroke="currentColor" strokeWidth="2" />
-            <path d="M5.5 7V5.5A2.5 2.5 0 018 3h8a2.5 2.5 0 012.5 2.5V7" stroke="currentColor" strokeWidth="2" />
-          </svg>
-          Capture Photo
-        </button>
-      )}
-      {showCamera && (
-        <div className="flex flex-col items-center w-full mb-4">
-          <video ref={videoRef} className="rounded-xl border border-gray-200 w-48 h-48 object-cover mb-2" autoPlay playsInline />
+    <form className="checkin-card-container" onSubmit={handleSubmit}>
+      <h1 className="checkin-heading">Attendance Check-in</h1>
+      <p className="checkin-subheading">Click your photo for attendance. You can also share a thought.</p>
+      <div className="w-full" style={{ marginBottom: '1.5rem' }}>
+        <label htmlFor="student-id-input" className="checkin-label">
+          Student ID <span style={{ color: '#f43f5e' }}>*</span>
+        </label>
+        <input
+          id="student-id-input"
+          type="text"
+          className="checkin-id-input"
+          placeholder="Enter your Student ID"
+          value={roll}
+          onChange={e => setRoll(e.target.value)}
+          required
+          autoComplete="off"
+          style={{ marginBottom: '1.5rem' }}
+        />
+      </div>
+      <div className="w-full" style={{ marginBottom: '1.5rem' }}>
+        <label className="checkin-label">
+          Attendance Photo <span style={{ color: '#f43f5e' }}>*</span>
+        </label>
+        {!photo && !showCamera && (
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg py-2 rounded-full shadow-md transition"
-            onClick={handleTakePhoto}
+            className="checkin-photo-btn"
+            onClick={handleCaptureClick}
           >
-            Take Photo
+            <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.5rem' }}>
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#ede9fe' }}>
+                <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+              </svg>
+            </span>
+            Click Photo
           </button>
-          <canvas ref={canvasRef} className="hidden" />
-        </div>
-      )}
-      {photo && (
-        <>
-          <img src={photo} alt="Preview" className="w-32 h-32 object-cover rounded-xl mb-4 border border-gray-200" />
-          <div className="w-full flex flex-row items-center gap-2 mb-2">
-            <button
-              type="submit"
-              className="flex-1 flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold text-lg py-3 rounded-full shadow-md transition"
-            >
-              Submit
-            </button>
+        )}
+        {showCamera && (
+          <div style={{ marginTop: '1rem', marginBottom: '1rem', width: '100%' }}>
+            <video ref={videoRef} className="checkin-photo-preview" autoPlay playsInline />
             <button
               type="button"
-              className="flex items-center justify-center rounded-full p-2 bg-transparent transition shadow-none"
-              title="Refresh"
+              className="checkin-photo-btn"
+              style={{ background: '#22c55e', marginTop: '0.5rem' }}
+              onClick={handleTakePhoto}
+            >
+              Capture
+            </button>
+            <canvas ref={canvasRef} className="hidden" />
+          </div>
+        )}
+        {photo && (
+          <div style={{ marginTop: '1rem', marginBottom: '1rem', width: '100%' }}>
+            <img src={photo} alt="Preview" className="checkin-photo-preview" />
+            <button
+              type="button"
+              className="checkin-retake-btn"
               onClick={() => {
                 setRoll('');
                 setPhoto(null);
                 setPrediction('');
+                setThought('');
                 setSubmitted(false);
                 setShowCamera(false);
               }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 48 48" stroke="#2196f3" strokeWidth="3">
-                <path d="M36 24a12 12 0 1 0-4.22 9.14" stroke="#2196f3" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="36 28 36 24 32 24" stroke="#2196f3" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              Retake Photo
             </button>
           </div>
-        </>
-      )}
-      {prediction && (
-        <div className="text-blue-600 font-semibold mt-2">Predicted Emotion: <strong>{prediction}</strong></div>
+        )}
+      </div>
+      {/* Thought Input */}
+      <div className="w-full" style={{ marginBottom: '1.5rem' }}>
+        <label htmlFor="thought-input" className="checkin-thought-label">
+          Share a thought (Optional)
+        </label>
+        <textarea
+          id="thought-input"
+          name="thought"
+          rows="3"
+          placeholder="How are you feeling today?"
+          className="checkin-thought-textarea"
+          value={thought}
+          onChange={e => setThought(e.target.value)}
+        ></textarea>
+        <p className="checkin-thought-helper">
+          Your thoughts help us understand the campus sentiment.
+        </p>
+      </div>
+      <button
+        type="submit"
+        className="checkin-submit-btn"
+      >
+        Submit
+      </button>
+      {prediction && prediction.mood && (
+        <div style={{ color: '#2563eb', fontWeight: 600, marginTop: '1.5rem' }}>
+          Predicted Emotion: <strong>{prediction.mood}</strong>
+          {typeof prediction.score !== 'undefined' && (
+            <span style={{ marginLeft: 12 }}>Score: <strong>{prediction.score}</strong></span>
+          )}
+        </div>
       )}
     </form>
   );

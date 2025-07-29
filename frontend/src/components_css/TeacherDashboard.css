@@ -238,19 +238,24 @@ html, body {
     overflow: hidden;
   }
   
+  
+
   .attendance-checkin-card {
-    background: #fff;
     border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(124,25,229,0.13);
     padding: 40px 36px 32px 36px;
     min-width: 340px;
-    max-width: 420px;
+    max-width: 700px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     margin: 0 auto;
     justify-content: center;
+  }
+  .attendance-checkin-container{
+    width: 100%;
+    padding: 0;
+    margin: 0;
   }
   
   .attendance-checkin-card h1 {
@@ -739,3 +744,156 @@ html, body {
   .summary-card-sub.neutral {
     color: #888;
   } 
+
+/* Check-in Card Styles */
+.checkin-card-container {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  padding: 2.5rem 2.5rem 2.5rem 2.5rem;
+  max-width: 420px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.checkin-heading {
+  font-size: 2.3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: #1a1333;
+}
+
+.checkin-subheading {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.checkin-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1333;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.checkin-photo-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #8b5cf6;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 1.1rem 0;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(139, 92, 246, 0.15);
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.checkin-photo-btn:hover {
+  background: #7c3aed;
+}
+
+.checkin-retake-btn {
+  width: 100%;
+  background: #f59e42;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.9rem 0;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(245, 158, 66, 0.15);
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.checkin-retake-btn:hover {
+  background: #d97706;
+}
+
+.checkin-submit-btn {
+  width: 100%;
+  background: #6d28d9;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 1.1rem 0;
+  border: none;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 8px 0 rgba(109, 40, 217, 0.15);
+  margin-top: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.checkin-submit-btn:hover {
+  background: #4c1d95;
+}
+
+.checkin-photo-preview {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 1.2rem;
+  border: 1.5px solid #e5e7eb;
+  margin: 0 auto 1.5rem auto;
+}
+
+.checkin-thought-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1a1333;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.checkin-thought-textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 1rem;
+  font-size: 1.05rem;
+  color: #22223b;
+  margin-bottom: 0.5rem;
+  resize: none;
+  background: #f9fafb;
+  transition: border 0.2s;
+}
+.checkin-thought-textarea:focus {
+  border-color: #8b5cf6;
+  outline: none;
+}
+
+.checkin-thought-helper {
+  color: #6b7280;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+} 
+
+.checkin-id-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 1rem;
+  font-size: 1.05rem;
+  color: #22223b;
+  margin-bottom: 0.5rem;
+  background: #f9fafb;
+  transition: border 0.2s;
+  box-sizing: border-box;
+}
+.checkin-id-input:focus {
+  border-color: #8b5cf6;
+  outline: none;
+} 
