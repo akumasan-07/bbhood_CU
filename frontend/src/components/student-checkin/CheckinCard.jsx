@@ -130,52 +130,52 @@ const CheckinCard = () => {
         <label htmlFor="student-id-input" className="checkin-label">
           Student ID <span style={{ color: '#f43f5e' }}>*</span>
         </label>
-        <input
+      <input
           id="student-id-input"
-          type="text"
+        type="text"
           className="checkin-id-input"
           placeholder="Enter your Student ID"
-          value={roll}
-          onChange={e => setRoll(e.target.value)}
-          required
+        value={roll}
+        onChange={e => setRoll(e.target.value)}
+        required
           autoComplete="off"
           style={{ marginBottom: '1.5rem' }}
-        />
+      />
       </div>
       <div className="w-full" style={{ marginBottom: '1.5rem' }}>
         <label className="checkin-label">
           Attendance Photo <span style={{ color: '#f43f5e' }}>*</span>
         </label>
-        {!photo && !showCamera && (
-          <button
-            type="button"
+      {!photo && !showCamera && (
+        <button
+          type="button"
             className="checkin-photo-btn"
-            onClick={handleCaptureClick}
-          >
+          onClick={handleCaptureClick}
+        >
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.5rem' }}>
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#ede9fe' }}>
                 <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                 <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-              </svg>
+          </svg>
             </span>
             Click Photo
-          </button>
-        )}
-        {showCamera && (
+        </button>
+      )}
+      {showCamera && (
           <div style={{ marginTop: '1rem', marginBottom: '1rem', width: '100%' }}>
             <video ref={videoRef} className="checkin-photo-preview" autoPlay playsInline />
-            <button
-              type="button"
+          <button
+            type="button"
               className="checkin-photo-btn"
               style={{ background: '#22c55e', marginTop: '0.5rem' }}
-              onClick={handleTakePhoto}
-            >
+            onClick={handleTakePhoto}
+          >
               Capture
-            </button>
-            <canvas ref={canvasRef} className="hidden" />
-          </div>
-        )}
-        {photo && (
+          </button>
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+      )}
+      {photo && (
           <div style={{ marginTop: '1rem', marginBottom: '1rem', width: '100%' }}>
             <img src={photo} alt="Preview" className="checkin-photo-preview" />
             <button
