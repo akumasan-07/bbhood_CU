@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 const MoodDeviationsTable = ({ moodDeviations }) => {
   const navigate = useNavigate();
+
+  const adjustedMood = (mood) => {
+    const raw = parseFloat(mood);
+    const adjusted = raw - 1;
+    return adjusted < 1.3 ? 1.3 : adjusted.toFixed(2);
+  };
+
   return (
     <div style={{ marginBottom: '2em' }}>
       <h2 className="tdb-header" style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1em' }}>Students with Notable Mood Deviations</h2>
@@ -11,7 +18,7 @@ const MoodDeviationsTable = ({ moodDeviations }) => {
           <thead>
             <tr>
               <th>Student Name</th>
-              <th>Current Mood Score</th>
+              <th>Adjusted Mood Score</th>
               <th>Change from Avg.</th>
               <th>Last Updated</th>
               <th></th>
@@ -22,13 +29,24 @@ const MoodDeviationsTable = ({ moodDeviations }) => {
               <tr
                 key={idx}
                 style={{ cursor: 'pointer', transition: 'background 0.2s' }}
-                onClick={() => navigate('/student/details')}
+                onClick={() => navigate(`/teacher/student/${row.studentID}`)}
+
                 onMouseOver={e => e.currentTarget.style.background = '#f5f3fa'}
                 onMouseOut={e => e.currentTarget.style.background = ''}
               >
                 <td style={{ fontWeight: 600, color: '#140e1b' }}>{row.name}</td>
-                <td style={{ color: row.changeColor === 'red' ? '#e53935' : row.changeColor === 'yellow' ? '#b45309' : row.changeColor === 'green' ? '#059669' : '#140e1b', fontWeight: 600 }}>{row.mood}</td>
-                <td style={{ color: row.changeColor === 'red' ? '#e53935' : row.changeColor === 'green' ? '#059669' : '#140e1b', fontWeight: 600 }}>{row.change}</td>
+                <td style={{ 
+                  color: row.changeColor === 'red' ? '#e53935' : row.changeColor === 'yellow' ? '#b45309' : row.changeColor === 'green' ? '#059669' : '#140e1b', 
+                  fontWeight: 600 
+                }}>
+                  {adjustedMood(row.mood)}
+                </td>
+                <td style={{ 
+                  color: row.changeColor === 'red' ? '#e53935' : row.changeColor === 'green' ? '#059669' : '#140e1b', 
+                  fontWeight: 600 
+                }}>
+                  {row.change}
+                </td>
                 <td style={{ color: '#888' }}>{row.lastUpdated}</td>
                 <td style={{ textAlign: 'right', color: '#7c19e5', fontWeight: 600, textDecoration: 'underline' }}>View Details</td>
               </tr>
@@ -40,4 +58,4 @@ const MoodDeviationsTable = ({ moodDeviations }) => {
   );
 };
 
-export default MoodDeviationsTable; 
+export default MoodDeviationsTable;

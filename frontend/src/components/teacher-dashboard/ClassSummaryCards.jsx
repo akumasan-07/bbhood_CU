@@ -1,6 +1,7 @@
 import React from 'react';
 
-const ClassSummaryCards = ({ students = [], flaggedCount = 0 }) => {
+const ClassSummaryCards = ({ students = [], moodDeviationCount = 0 }) => {
+
   // Calculate total attendance and total classes
   const totalAttendance = students.reduce((sum, s) => sum + (typeof s.totalAttendance === 'number' ? s.totalAttendance : 0), 0);
   const totalClasses = students.reduce((sum, s) => sum + (typeof s.totalClass === 'number' ? s.totalClass : 0), 0);
@@ -71,10 +72,11 @@ const ClassSummaryCards = ({ students = [], flaggedCount = 0 }) => {
           </p>
         </div>
         <div className="tdb-support" style={{flex: 1, minWidth: 220}}>
-          <p style={{color: '#724e97', fontWeight: 500, fontSize: '1rem'}}>Notable Mood Deviations</p>
-          <p style={{color: '#140e1b', fontWeight: 700, fontSize: '2.2rem'}}>{flaggedCount}</p>
-          <p style={{color: '#888', fontWeight: 500, fontSize: '1rem'}}>students flagged today</p>
-        </div>
+  <p style={{color: '#724e97', fontWeight: 500, fontSize: '1rem'}}>Notable Mood Deviations</p>
+  <p style={{color: '#140e1b', fontWeight: 700, fontSize: '2.2rem'}}>{moodDeviationCount}</p>
+  <p style={{color: '#888', fontWeight: 500, fontSize: '1rem'}}>with mood deviations today</p>
+</div>
+
       </div>
     </div>
   );

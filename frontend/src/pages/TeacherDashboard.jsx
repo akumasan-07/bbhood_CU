@@ -109,7 +109,8 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
           <div className="tdb-content">
             <section>
               <h2>Class Summary</h2>
-              <ClassSummaryCards students={attendanceData} flaggedCount={flaggedCount} />
+              <ClassSummaryCards students={attendanceData} moodDeviationCount={moodDeviations.length} />
+
             </section>
             <section>
               <h2>Student Attendance</h2>
