@@ -60,7 +60,7 @@ function TeacherDashboard({ teacher, setTeacher, students, attendanceData, setAt
       }
       
       // Calculate average mood score for today
-      const avgMoodScore = todayRecords.reduce((sum, a) => sum + a.moodScore, 0) / todayRecords.length;
+      const avgMoodScore = todayRecords.reduce((sum, a) => sum + (a.moodScore), 0) / todayRecords.length;
       console.log('Average mood score for', student.name, ':', avgMoodScore);
       
       // Only include students with mood score below 3.5

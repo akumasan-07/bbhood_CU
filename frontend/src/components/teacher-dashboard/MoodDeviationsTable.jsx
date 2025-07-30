@@ -6,7 +6,7 @@ const MoodDeviationsTable = ({ moodDeviations }) => {
 
   const adjustedMood = (mood) => {
     const raw = parseFloat(mood);
-    const adjusted = raw - 1;
+    const adjusted = raw-0.5;
     return adjusted < 1.3 ? 1.3 : adjusted.toFixed(2);
   };
 
