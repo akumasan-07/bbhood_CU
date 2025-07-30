@@ -897,3 +897,66 @@ html, body {
   border-color: #8b5cf6;
   outline: none;
 } 
+
+
+.attendance-table-container {
+  overflow-x: auto;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.attendance-buttons button {
+  margin: 0 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.attendance-button.present {
+  background-color: #28a745;
+}
+
+.attendance-button.late {
+  background-color: #ff9800;
+}
+
+.attendance-button.absent {
+  background-color: #f44336;
+}
+
+.disabled-button {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-pill {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-pill.present {
+  background-color: #d4f8df;
+  color: #1a7f37;
+}
+
+.status-pill.not-marked {
+  background-color: #f2f2f2;
+  color: #999;
+}
