@@ -183,6 +183,112 @@
 
 
 
+// import React from 'react';
+// import '../../components_css/TeacherDashboard.css';
+
+// function StudentAttendanceTable({ attendanceData, setAttendanceData }) {
+//   const today = new Date().toISOString().slice(0, 10);
+
+//   const markAttendance = (studentID, status) => {
+//     const updatedData = attendanceData.map(student => {
+//       if (student.studentID !== studentID) return student;
+
+//       const alreadyMarked = student.attendance?.some(
+//         a => new Date(a.date).toISOString().slice(0, 10) === today
+//       );
+
+//       if (alreadyMarked) return student;
+
+//       const newRecord = {
+//         date: new Date().toISOString(),
+//         status: status,
+//         moodScore: null // You can later update this if needed
+//       };
+
+//       return {
+//         ...student,
+//         attendance: [...(student.attendance || []), newRecord]
+//       };
+//     });
+
+//     setAttendanceData(updatedData);
+//   };
+
+//   return (
+//     <div className="attendance-table-container">
+//       <table className="attendance-table">
+//         <thead>
+//           <tr>
+//             <th>Student</th>
+//             <th>Date</th>
+//             <th>Status</th>
+//             <th>Attendance %</th>
+//             <th>Count</th>
+//             <th>Mark Attendance</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {attendanceData.map(student => {
+//             const studentName = student.name || student.username || student.studentID;
+
+//             const isMarkedToday = student.attendance?.some(
+//               a => new Date(a.date).toISOString().slice(0, 10) === today
+//             );
+
+//             const presentCount = student.attendance?.filter(a => a.status === 'Present').length || 0;
+//             const totalCount = student.attendance?.length || 0;
+//             const percentage = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(0) : 0;
+
+//             return (
+//               <tr key={student.studentID}>
+//                 <td><strong>{studentName}</strong></td>
+//                 <td>{today}</td>
+//                 <td>
+//                   {isMarkedToday ? (
+//                     <span className="status-pill present">Present</span>
+//                   ) : (
+//                     <span className="status-pill not-marked">-</span>
+//                   )}
+//                 </td>
+//                 <td>{percentage}%</td>
+//                 <td>{presentCount}/{totalCount}</td>
+//                 <td>
+//                   <div className="attendance-buttons">
+//                     <button
+//                       className={`attendance-button present ${isMarkedToday ? 'disabled-button' : ''}`}
+//                       onClick={() => markAttendance(student.studentID, 'Present')}
+//                       disabled={isMarkedToday}
+//                     >
+//                       Present
+//                     </button>
+//                     <button
+//                       className={`attendance-button late ${isMarkedToday ? 'disabled-button' : ''}`}
+//                       onClick={() => markAttendance(student.studentID, 'Late')}
+//                       disabled={isMarkedToday}
+//                     >
+//                       Late
+//                     </button>
+//                     <button
+//                       className={`attendance-button absent ${isMarkedToday ? 'disabled-button' : ''}`}
+//                       onClick={() => markAttendance(student.studentID, 'Absent')}
+//                       disabled={isMarkedToday}
+//                     >
+//                       Absent
+//                     </button>
+//                   </div>
+//                 </td>
+//               </tr>
+//             );
+//           })}
+//         </tbody>
+//       </table>
+//     </div>
+//   );
+// }
+
+// export default StudentAttendanceTable;
+
+
 import React from 'react';
 import '../../components_css/TeacherDashboard.css';
 
@@ -202,7 +308,7 @@ function StudentAttendanceTable({ attendanceData, setAttendanceData }) {
       const newRecord = {
         date: new Date().toISOString(),
         status: status,
-        moodScore: null // You can later update this if needed
+        moodScore: null // Optional: will be updated later
       };
 
       return {
@@ -235,9 +341,12 @@ function StudentAttendanceTable({ attendanceData, setAttendanceData }) {
               a => new Date(a.date).toISOString().slice(0, 10) === today
             );
 
-            const presentCount = student.attendance?.filter(a => a.status === 'Present').length || 0;
-            const totalCount = student.attendance?.length || 0;
-            const percentage = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(0) : 0;
+            // ✅ Use backend-calculated totals
+            const totalAttendance = student.totalAttendance || 0;
+            const totalClass = student.totalClass || 0;
+            const percentage = totalClass > 0
+              ? ((totalAttendance / totalClass) * 100).toFixed(0)
+              : 0;
 
             return (
               <tr key={student.studentID}>
@@ -251,7 +360,7 @@ function StudentAttendanceTable({ attendanceData, setAttendanceData }) {
                   )}
                 </td>
                 <td>{percentage}%</td>
-                <td>{presentCount}/{totalCount}</td>
+                <td>{totalAttendance}/{totalClass}</td>
                 <td>
                   <div className="attendance-buttons">
                     <button
