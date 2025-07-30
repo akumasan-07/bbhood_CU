@@ -1,9 +1,37 @@
+// import React from 'react';
+
+// const FlaggedInstancesTable = ({ flagged }) => (
+//   <div className="sd-flagged-table">
+//     <div className="font-bold text-lg mb-4">Flagged Instances</div>
+//     <div style={{overflowX: 'auto'}}>
+//       <table className="sd-table">
+//         <thead>
+//           <tr>
+//             <th>DATE</th>
+//             <th>DESCRIPTION</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {flagged.map((row, i) => (
+//             <tr key={i}>
+//               <td>{row.date}</td>
+//               <td>{row.desc}</td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+//   </div>
+// );
+
+// export default FlaggedInstancesTable; 
+
 import React from 'react';
 
 const FlaggedInstancesTable = ({ flagged }) => (
   <div className="sd-flagged-table">
     <div className="font-bold text-lg mb-4">Flagged Instances</div>
-    <div style={{overflowX: 'auto'}}>
+    <div style={{ overflowX: 'auto' }}>
       <table className="sd-table">
         <thead>
           <tr>
@@ -12,16 +40,24 @@ const FlaggedInstancesTable = ({ flagged }) => (
           </tr>
         </thead>
         <tbody>
-          {flagged.map((row, i) => (
-            <tr key={i}>
-              <td>{row.date}</td>
-              <td>{row.desc}</td>
+          {flagged.length === 0 ? (
+            <tr>
+              <td colSpan="2" style={{ textAlign: 'center', padding: '1rem', color: '#888' }}>
+                No flagged instances found.
+              </td>
             </tr>
-          ))}
+          ) : (
+            flagged.map((row, i) => (
+              <tr key={i}>
+                <td>{row.date || 'N/A'}</td>
+                <td>{row.desc?.trim() ? row.desc : 'No description'}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
   </div>
 );
 
-export default FlaggedInstancesTable; 
+export default FlaggedInstancesTable;

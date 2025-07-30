@@ -430,6 +430,12 @@ html, body {
     gap: 16px;
     margin-bottom: 0;
   }
+  .section-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 0;
+  }
   .sd-section-row:not(:last-child) {
     border-bottom: 2px solid #ede7f3;
     padding-bottom: 16px;

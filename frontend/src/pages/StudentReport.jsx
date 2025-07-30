@@ -252,9 +252,11 @@ const StudentReport = ({ setTeacher, studentId: propStudentId }) => {
               }}
             >
               {studentName || 'Student'}
-              <span style={{ color: '#a259e6', marginLeft: 8 }}>
-                — {studentObj?.classSection || 'IT'}
-              </span>
+              {studentObj?.classSection && (
+  <span style={{ color: '#a259e6', marginLeft: 8 }}>
+    — {studentObj.classSection}
+  </span>
+)}
             </div>
             <div style={{ color: '#7c5fa3', fontSize: '1.25rem', marginTop: 8 }}>
               An overview of your attendance and check-ins.
@@ -268,12 +270,12 @@ const StudentReport = ({ setTeacher, studentId: propStudentId }) => {
               attendance={Array.isArray(studentObj?.attendance) ? studentObj.attendance : []}
             />
           </div>
-          <div className="sd-section-col">
+          {/* <div className="sd-section-col">
             <MoodTrendCard />
-          </div>
+          </div> */}
         </div>
 
-        <div className="sd-section-row">
+        <div className="section-row">
           <div className="sd-section-col">
             <FlaggedInstancesTable flagged={Array.isArray(studentObj?.flagged) ? studentObj.flagged : []} />
           </div>
