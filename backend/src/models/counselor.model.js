@@ -28,6 +28,12 @@ const counselorSchema = new mongoose.Schema({
         default: "counselor",
     },
     isActive: { type: Boolean, default: true },
+    flaggedStudents: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Student'
+        }
+      ]
 },{timestamps: true});
 
 const Counselor = mongoose.model("Counselor", counselorSchema);

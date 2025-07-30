@@ -218,7 +218,7 @@ const StudentReport = ({ setTeacher, studentId: propStudentId }) => {
   return (
     <div className="sd-root">
       <Navbar active="Reports" showLinks={true} currentRole="teacher" setTeacher={setTeacher} />
-      <div className="sd-container">
+      <div className="sd-container-fake">
         <div
           className="sd-header"
           style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 0 }}

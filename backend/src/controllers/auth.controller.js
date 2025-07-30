@@ -289,4 +289,24 @@ export const fixTeacherStudentLinks = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ success: false, message: 'Error fixing links', error: err.message });
     }
-};
+}
+
+export const getStudentByID = async (req, res) => {
+    try {
+      const student = await Student.findOne({ studentID: req.params.studentId });
+      if (!student) return res.status(404).json({ message: 'Student not found' });
+      res.json(student);
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching student', error: err.message });
+    }
+}
+
+export const flaggedCounclerStudent = async (req, res) => {
+    try {
+      const flaggedStudents = await Student.find({ moodAvg: { $lt: 3.5 } });
+      res.json(flaggedStudents);
+    } catch (error) {
+      console.error("Error fetching flagged students:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+}
