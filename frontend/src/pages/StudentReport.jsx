@@ -277,7 +277,18 @@ const StudentReport = ({ setTeacher, studentId: propStudentId }) => {
 
         <div className="section-row">
           <div className="sd-section-col">
-            <FlaggedInstancesTable flagged={Array.isArray(studentObj?.flagged) ? studentObj.flagged : []} />
+            <FlaggedInstancesTable
+              flagged={
+                Array.isArray(studentObj?.attendance)
+                  ? studentObj.attendance
+                      .filter(a => typeof a.moodScore === 'number' && a.moodScore < 3.5)
+                      .map(a => ({
+                        date: a.date,
+                        moodScore: a.moodScore
+                      }))
+                  : []
+              }
+            />
           </div>
           <div className="sd-section-col">
             <InterventionsCard interventions={Array.isArray(studentObj?.interventions) ? studentObj.interventions : []} />

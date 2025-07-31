@@ -36,7 +36,7 @@ const FlaggedInstancesTable = ({ flagged }) => (
         <thead>
           <tr>
             <th>DATE</th>
-            <th>DESCRIPTION</th>
+            <th>MOOD SCORE</th>
           </tr>
         </thead>
         <tbody>
@@ -49,8 +49,8 @@ const FlaggedInstancesTable = ({ flagged }) => (
           ) : (
             flagged.map((row, i) => (
               <tr key={i}>
-                <td>{row.date || 'N/A'}</td>
-                <td>{row.desc?.trim() ? row.desc : 'No description'}</td>
+                <td>{row.date ? new Date(row.date).toLocaleDateString() : 'N/A'}</td>
+                <td>{typeof row.moodScore === 'number' ? row.moodScore : 'N/A'}</td>
               </tr>
             ))
           )}
