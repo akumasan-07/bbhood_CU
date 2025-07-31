@@ -295,29 +295,41 @@ import '../../components_css/TeacherDashboard.css';
 function StudentAttendanceTable({ attendanceData, setAttendanceData }) {
   const today = new Date().toISOString().slice(0, 10);
 
-  const markAttendance = (studentID, status) => {
-    const updatedData = attendanceData.map(student => {
-      if (student.studentID !== studentID) return student;
-
-      const alreadyMarked = student.attendance?.some(
-        a => new Date(a.date).toISOString().slice(0, 10) === today
-      );
-
-      if (alreadyMarked) return student;
-
-      const newRecord = {
-        date: new Date().toISOString(),
-        status: status,
-        moodScore: null // Optional: will be updated later
-      };
-
-      return {
-        ...student,
-        attendance: [...(student.attendance || []), newRecord]
-      };
-    });
-
-    setAttendanceData(updatedData);
+  const markAttendance = async (studentID, status) => {
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/attendance/mark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: studentID, status }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAttendanceData(prev =>
+          prev.map(student => {
+            if (student.studentID !== studentID) return student;
+            const newAttendance = [...(student.attendance || []), {
+              date: new Date().toISOString(),
+              status,
+              moodScore: null
+            }];
+            let attendanceIncrement = 0;
+            if (status === 'Present') attendanceIncrement = 1;
+            else if (status === 'Late') attendanceIncrement = 0.5;
+            // Absent = 0
+            return {
+              ...student,
+              attendance: newAttendance,
+              totalClass: (student.totalClass || 0) + 1,
+              totalAttendance: (student.totalAttendance || 0) + attendanceIncrement
+            };
+          })
+        );
+      } else {
+        alert(data.message || 'Failed to mark attendance');
+      }
+    } catch (err) {
+      alert('Error marking attendance');
+    }
   };
 
   return (
@@ -353,11 +365,37 @@ function StudentAttendanceTable({ attendanceData, setAttendanceData }) {
                 <td><strong>{studentName}</strong></td>
                 <td>{today}</td>
                 <td>
-                  {isMarkedToday ? (
-                    <span className="status-pill present">Present</span>
-                  ) : (
-                    <span className="status-pill not-marked">-</span>
-                  )}
+                  {(() => {
+                    const todayISO = new Date().toISOString().slice(0, 10);
+                    // Find today's record, handling both string and Date objects
+                    const todayRecord = student.attendance?.find(a => {
+                      if (!a.date) return false;
+                      const recordDate = typeof a.date === 'string'
+                        ? a.date.slice(0, 10)
+                        : a.date instanceof Date
+                          ? a.date.toISOString().slice(0, 10)
+                          : '';
+                      return recordDate === todayISO;
+                    });
+                    if (todayRecord) {
+                      let pillClass = 'status-pill ';
+                      let pillStyle = { display: 'inline-block', padding: '4px 16px', borderRadius: '999px', fontWeight: 700, color: '#fff' };
+                      const statusLower = todayRecord.status?.toLowerCase();
+                      if (statusLower === 'present') {
+                        pillClass += 'present';
+                        pillStyle.background = '#166534';
+                      } else if (statusLower === 'late') {
+                        pillClass += 'late';
+                        pillStyle.background = '#a16207';
+                      } else if (statusLower === 'absent') {
+                        pillClass += 'absent';
+                        pillStyle.background = '#991b1b';
+                      }
+                      return <span className={pillClass} style={pillStyle}>{todayRecord.status}</span>;
+                    } else {
+                      return <span className="status-pill not-marked" style={{ display: 'inline-block', padding: '4px 16px', borderRadius: '999px', fontWeight: 700, background: '#444', color: '#fff' }}>-</span>;
+                    }
+                  })()}
                 </td>
                 <td>{percentage}%</td>
                 <td>{totalAttendance}/{totalClass}</td>

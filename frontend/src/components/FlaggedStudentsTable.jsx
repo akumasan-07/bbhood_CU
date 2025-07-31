@@ -29,7 +29,7 @@ const FlaggedStudentsTable = ({ flaggedStudents }) => {
             >
               <td style={{ color: '#7c19e5', fontWeight: 700 }}>{row.name}</td>
               <td>{row.class}</td>
-              <td style={{ color: '#e53935', fontWeight: 700 }}>{row.score}</td>
+              <td style={{ color: '#e53935', fontWeight: 700 }}>{row.score < 0 ? ((row.score).toFixed(2)+2) : row.score}</td>
               <td>{row.updated}</td>
               <td>
                 <a

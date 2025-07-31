@@ -36,14 +36,20 @@ const StudentDashboard = ({ student }) => {
   let avgAttendance = 0;
   let lastWeekAvg = 0;
   if (attendanceData.length > 0) {
-    // 1 = Present, 0.5 = Late, 0 = Absent
-    const score = attendanceData.map(r => r.status === 'Present' ? 1 : r.status === 'Late' ? 0.5 : 0);
+    // 1 = Present, 0.5 = Late, 0 = Absent (case-insensitive)
+    const score = attendanceData.map(r => {
+      const status = r.status?.toLowerCase();
+      return status === 'present' ? 1 : status === 'late' ? 0.5 : 0;
+    });
     avgAttendance = Math.round((score.reduce((a, b) => a + b, 0) / attendanceData.length) * 100);
     // Last week (last 7 days)
     const now = new Date();
     const lastWeek = attendanceData.filter(r => (now - new Date(r.date)) / (1000 * 60 * 60 * 24) <= 7);
     if (lastWeek.length > 0) {
-      const lastWeekScore = lastWeek.map(r => r.status === 'Present' ? 1 : r.status === 'Late' ? 0.5 : 0);
+      const lastWeekScore = lastWeek.map(r => {
+        const status = r.status?.toLowerCase();
+        return status === 'present' ? 1 : status === 'late' ? 0.5 : 0;
+      });
       lastWeekAvg = Math.round((lastWeekScore.reduce((a, b) => a + b, 0) / lastWeek.length) * 100);
     }
   }
@@ -62,10 +68,10 @@ const StudentDashboard = ({ student }) => {
   }
   const weekChange = lastWeekAvg - prevWeekAvg;
 
-  // Calculate total absences in last 30 days
-  const totalAbsent = attendanceData.filter(r => r.status === 'Absent').length;
-  // Calculate total late in last 30 days
-  const totalLate = attendanceData.filter(r => r.status === 'Late').length;
+  // Calculate total absences in last 30 days (case-insensitive)
+  const totalAbsent = attendanceData.filter(r => r.status?.toLowerCase() === 'absent').length;
+  // Calculate total late in last 30 days (case-insensitive)
+  const totalLate = attendanceData.filter(r => r.status?.toLowerCase() === 'late').length;
 
   return (
     <div className="sd-root">
@@ -134,8 +140,8 @@ const StudentDashboard = ({ student }) => {
                       <td>{checkIn}</td>
                       <td>
                         <span className={
-                          status === 'Present' ? 'sd-status-present' :
-                          status === 'Late' ? 'sd-status-late' :
+                          status && status.toLowerCase() === 'present' ? 'sd-status-present' :
+                          status && status.toLowerCase() === 'late' ? 'sd-status-late' :
                           'sd-status-absent'
                         }>{status}</span>
                       </td>

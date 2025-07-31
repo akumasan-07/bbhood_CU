@@ -41,7 +41,7 @@ const ClassSummaryCards = ({ students = [], moodDeviationCount = 0 }) => {
     });
     
     console.log('Total mood score:', totalMoodScore, 'Total students with mood:', totalStudentsWithMood);
-    const result = totalStudentsWithMood > 0 ? (totalMoodScore / totalStudentsWithMood).toFixed(1) : '0.0';
+    const result = totalStudentsWithMood > 0 ? (totalMoodScore / totalStudentsWithMood).toFixed(2) : '0.00';
     console.log('Final avg mood score:', result);
     return result;
   };
@@ -62,7 +62,7 @@ const ClassSummaryCards = ({ students = [], moodDeviationCount = 0 }) => {
         </div>
         <div className="tdb-support" style={{flex: 1, minWidth: 220}}>
           <p style={{color: '#724e97', fontWeight: 500, fontSize: '1rem'}}>Average Mood Score</p>
-          <p style={{color: '#140e1b', fontWeight: 700, fontSize: '2.2rem'}}>{avgMoodScore-0.5}/5</p>
+          <p style={{color: '#140e1b', fontWeight: 700, fontSize: '2.2rem'}}>{(avgMoodScore-0.5).toFixed(2)}/5</p>
           <p className={Number(avgMoodScore) > 3.5 ? "tdb-mood-positive" : Number(avgMoodScore) > 2.5 ? "" : "tdb-mood-negative"} 
              style={{fontWeight: 500, fontSize: '1rem', 
              color: Number(avgMoodScore) > 3.5 ? '#059669' : Number(avgMoodScore) > 2.5 ? '#b45309' : '#e53935', 

@@ -55,9 +55,12 @@ function AdminDashboard() {
 
         // Calculate average mood after subtracting 1 from each
         const adjustedMoods = data.map(s => (s.moodAvg - 1));
-        const moodAvg = adjustedMoods.length > 0
-          ? (adjustedMoods.reduce((sum, m) => sum + m, 0) / adjustedMoods.length).toFixed(2)
-          : '0.00';
+        let moodAvg = adjustedMoods.length > 0
+          ? (adjustedMoods.reduce((sum, m) => sum + m, 0) / adjustedMoods.length)
+          : 0;
+        // If moodAvg is negative, add 2 to it
+        if (moodAvg < 0) moodAvg += 2;
+        moodAvg = moodAvg.toFixed(2);
 
         setSummary([
           {
@@ -135,7 +138,7 @@ function AdminDashboard() {
                     <tr key={student._id}>
                       <td>{student.username}</td>
                       <td>{student.classSection}</td>
-                      <td>{(student.moodAvg - 1).toFixed(2)}</td>
+                      <td>{(student.moodAvg-1).toFixed(2)}</td>
                       <td>{new Date(student.updatedAt).toLocaleString()}</td>
                     </tr>
                   ))}
